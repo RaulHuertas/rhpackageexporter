@@ -102,9 +102,10 @@ void handleClientConn(SOCKET ClientSocket, HashGenerator* hasher, const DataInfo
 			printf("Bytes received: %d\n", iResult);
 			requestLength+=iResult;
 			if(requestLength==3){//Comando recibido
-				if( strcmp(request, "GET") ){//Comando Get recibido
+                                request[requestLength]=0;
+				if( strcmp(request, "GET") == 0){//Comando Get recibido
 					//sockstate = READING_REQUEST;
-				}else if( strcmp(request, "DIE") ){
+				}else if( strcmp(request, "DIE") == 0 ){
 					keepReading = false;
 					closesocket(ClientSocket);
 					printf("comando DIE recibido\n");
@@ -113,7 +114,7 @@ void handleClientConn(SOCKET ClientSocket, HashGenerator* hasher, const DataInfo
 				}else{//Comando no reconocido
 					keepReading = false;
 					closesocket(ClientSocket);
-					printf("Se ha recibido un comando que no se implementa\n");
+					cout<<"Se ha recibido un comando que no se implementa: "<<request<<endl;;
 					ClientSocket = INVALID_SOCKET;
 				}
 			}
@@ -137,6 +138,7 @@ void handleClientConn(SOCKET ClientSocket, HashGenerator* hasher, const DataInfo
 						HashType32 hash = hasher->GenerateHash32(url, urlLen, pack->seed);
 						cout<<"THREAD "<<tid<<", "<<"Hash Calculado: "<<hash<<endl;
 						int index = isHashInPack(hash, pack->pack);
+                                                cout<<"THREAD "<<tid<<", "<<"Resultado de la busqueda..."<<hash<<endl;
 						if(index>=0){
 							cout<<"THREAD "<<tid<<", "<<"Se ha encontrado una coincidencia en la tabla hash: "<<index<<endl;
 							const auto& tupla = pack->pack.listOfTupples[index];
@@ -151,6 +153,7 @@ void handleClientConn(SOCKET ClientSocket, HashGenerator* hasher, const DataInfo
 									ClientSocket = INVALID_SOCKET;
 									break;
 								}else{
+                                                                        cout<<"THREAD "<<tid<<", "<<"Bytes sent: "<<totalBytesSent<<"/"<<tupla.totalSize<<endl;
 									totalBytesSent+=bytesSent;
 								}
 							}
@@ -192,7 +195,7 @@ void handleClientConn(SOCKET ClientSocket, HashGenerator* hasher, const DataInfo
 }
 
 int readPackageInfo(const char* filename, DataInfo& data){
-
+    
 	string fn;
 	fn.append(filename);
 	ifstream file;
@@ -218,6 +221,10 @@ int readPackageInfo(const char* filename, DataInfo& data){
 	}
 
 	file.close();
+        
+        cout<<"Numero de tuplas: "<<data.tupplesN<<endl;
+        cout<<"Size of files: "<<data.dataSize<<endl;
+        
 	return 0;
 }
 
