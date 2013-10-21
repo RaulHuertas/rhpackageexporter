@@ -81,7 +81,7 @@ void handleClientConn(SOCKET ClientSocket, HashGenerator* hasher, const DataInfo
 	struct sockaddr_in* addressInternet;
 	addressInternet  = (struct sockaddr_in*)&clientName;
 	int clientPort = ntohs ( addressInternet->sin_port );
-	cout<<"Conexion aceptada, puerto destino: "<<clientPort<<endl;
+	//cout<<"Conexion aceptada, puerto destino: "<<clientPort<<endl;
 	requestLength = 0;
 	bool keepReading = true;
 	int iResult = 0;
@@ -99,7 +99,9 @@ void handleClientConn(SOCKET ClientSocket, HashGenerator* hasher, const DataInfo
 		}
 			
 		if (iResult > 0) {
+                        #ifdef DEBUG
 			printf("Bytes received: %d\n", iResult);
+                        #endif  //DEBUG
 			requestLength+=iResult;
 			if(requestLength==3){//Comando recibido
                                 request[requestLength]=0;
@@ -114,7 +116,9 @@ void handleClientConn(SOCKET ClientSocket, HashGenerator* hasher, const DataInfo
 				}else{//Comando no reconocido
 					keepReading = false;
 					closesocket(ClientSocket);
+                                        #ifdef DEBUG
 					cout<<"Se ha recibido un comando que no se implementa: "<<request<<endl;;
+                                        #endif //DEBUG
 					ClientSocket = INVALID_SOCKET;
 				}
 			}
@@ -128,49 +132,51 @@ void handleClientConn(SOCKET ClientSocket, HashGenerator* hasher, const DataInfo
 					//Fin de peticion HTTP
 					request[requestLength] = 0;
 					//mostrarla
-					printf("THREAD %d Se ha recibido la siguiente cabecera: \r\n", tid);
-					cout<<&request[0]<<endl;
+					//printf("THREAD %d Se ha recibido la siguiente cabecera: \r\n", tid);
+					//cout<<&request[0]<<endl;
 					//y... cerrar la conexion por ahora U_U
 					int urlScan = sscanf(request,"GET %s HTTP", url);
 					if(urlScan==1){
 						int urlLen = strlen(url);
+                                                HashType32 hashGenerated = hasher->GenerateHash32(url, urlLen, pack->seed);
+                                                auto index = isHashInPack(hashGenerated, pack->pack);
+                                                #ifdef DEBUG
 						cout<<"THREAD "<<tid<<", "<<"URL adquirida: "<<url<<endl;
-						HashType32 hash = hasher->GenerateHash32(url, urlLen, pack->seed);
 						cout<<"THREAD "<<tid<<", "<<"Hash Calculado: "<<hash<<endl;
-						int index = isHashInPack(hash, pack->pack);
                                                 cout<<"THREAD "<<tid<<", "<<"Resultado de la busqueda..."<<hash<<endl;
+                                                #endif //DEBUG
 						if(index>=0){
-							cout<<"THREAD "<<tid<<", "<<"Se ha encontrado una coincidencia en la tabla hash: "<<index<<endl;
+							//cout<<"THREAD "<<tid<<", "<<"Se ha encontrado una coincidencia en la tabla hash: "<<index<<endl;
 							const auto& tupla = pack->pack.listOfTupples[index];
 							int bytesSent = 0;
 							int totalBytesSent = 0;
 							while(tupla.totalSize!=totalBytesSent){
 								bytesSent = send( ClientSocket, pack->pack.GetData()+tupla.position+totalBytesSent, tupla.totalSize-totalBytesSent, 0 );
 								if(bytesSent == SOCKET_ERROR ){
-									cout<<"THREAD "<<tid<<", "<<"Error transmitiendo los datos de: "<<hash<<endl;
+									//cout<<"THREAD "<<tid<<", "<<"Error transmitiendo los datos de: "<<hashGenerated<<endl;
 									keepReading = false;
 									closesocket(ClientSocket);
 									ClientSocket = INVALID_SOCKET;
 									break;
 								}else{
-                                                                        cout<<"THREAD "<<tid<<", "<<"Bytes sent: "<<totalBytesSent<<"/"<<tupla.totalSize<<endl;
+                                                                        //cout<<"THREAD "<<tid<<", "<<"Bytes sent: "<<totalBytesSent<<"/"<<tupla.totalSize<<endl;
 									totalBytesSent+=bytesSent;
 								}
 							}
 							requestLength = 0;
-							cout<<"THREAD "<<tid<<", "<<"Recurso enviado: "<<endl;
+							//cout<<"THREAD "<<tid<<", "<<"Recurso enviado: "<<endl;
 						}else{
 							
 							keepReading = false;
 							closesocket(ClientSocket);
-							cout<<"THREAD "<<tid<<", "<<("URL no encontrada!")<<endl;
+							//cout<<"THREAD "<<tid<<", "<<("URL no encontrada!")<<endl;
 							ClientSocket = INVALID_SOCKET;
 						}
 
 					}else{
 						keepReading = false;
 						closesocket(ClientSocket);
-						cout<<"THREAD "<<tid<<", "<<("Falta implementar GET! \n")<<endl;
+						//cout<<"THREAD "<<tid<<", "<<("Falta implementar GET! \n")<<endl;
 						ClientSocket = INVALID_SOCKET;
 					}
 						
@@ -180,12 +186,12 @@ void handleClientConn(SOCKET ClientSocket, HashGenerator* hasher, const DataInfo
 		}else if(iResult==0){//Conexion finalizada
 			keepReading = false;
 			closesocket(ClientSocket);
-			cout<<"THREAD "<<tid<<", "<<("conexion finalizada pro el cliente\n")<<endl;
+			//cout<<"THREAD "<<tid<<", "<<("conexion finalizada pro el cliente\n")<<endl;
 			ClientSocket = INVALID_SOCKET;
 		}else{//Error de lectura
 			keepReading = false;
 			closesocket(ClientSocket);
-			cout<<"THREAD "<<tid<<", "<<("error de lectura\n")<<endl;
+			//cout<<"THREAD "<<tid<<", "<<("error de lectura\n")<<endl;
 			ClientSocket = INVALID_SOCKET;
 		}
 			
@@ -273,7 +279,7 @@ int main(int argc, char** argv)
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
-    //hints.ai_flags = AI_PASSIVE;
+    hints.ai_flags = AI_PASSIVE;
 	// Resolve the server address and port
     iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
     if ( iResult != 0 ) {
@@ -322,7 +328,7 @@ int main(int argc, char** argv)
                     #endif //WIN32
 			break;
 		}
-		cout<<"Intento de conexion recibido"<<endl;
+		//cout<<"Intento de conexion recibido"<<endl;
 		ClientSocket = accept(ListenSocket, NULL, NULL);
 		if (ClientSocket == INVALID_SOCKET) {
                     cout<<"Error en 'accept'"<<endl;
