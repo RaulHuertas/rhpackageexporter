@@ -1,0 +1,32 @@
+// The following ifdef block is the standard way of creating macros which make exporting 
+// from a DLL simpler. All files within this DLL are compiled with the RHEXPORTLIB_EXPORTS
+// symbol defined on the command line. This symbol should not be defined on any project
+// that uses this DLL. This way any other project whose source files include this file see 
+// RHEXPORTLIB_API functions as being imported from a DLL, whereas this DLL sees symbols
+// defined with this macro as being exported.
+#ifndef REH_EXPORT_LIB_H
+#define REH_EXPORT_LIB_H
+
+#ifdef WIN32
+    #ifdef RHEXPORTLIB_EXPORTS
+    #define RHEXPORTLIB_API __declspec(dllexport)
+    #else
+    #define RHEXPORTLIB_API __declspec(dllimport)
+    #endif
+#else
+    #define RHEXPORTLIB_API    
+#endif
+
+// This class is exported from the RHExportLib.dll
+class RHEXPORTLIB_API CRHExportLib {
+public:
+	CRHExportLib(void);
+	// TODO: add your methods here.
+};
+
+extern RHEXPORTLIB_API int nRHExportLib;
+
+RHEXPORTLIB_API int fnRHExportLib(void);
+
+
+#endif
