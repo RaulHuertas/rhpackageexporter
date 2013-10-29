@@ -17,6 +17,7 @@ public:
 	std::string exportStatsResultFile;
 	std::string server;
 	std::string host;
+        std::string HashGenerationBenchMarkFile;
 	int URLLengthLimit;
 	int URLLimitDetected;
 	ExportOptions();

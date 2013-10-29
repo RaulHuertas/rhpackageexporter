@@ -19,5 +19,6 @@ include_directories("${PROJECT_NAME}_INCLUDE_DIR")
 add_subdirectory(RHExportLib)
 add_subdirectory(PackageCompressor)
 add_subdirectory(RHPacketServer)
+add_subdirectory(BenchmarkingTest)
 
 

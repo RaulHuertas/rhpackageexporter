@@ -39,6 +39,11 @@ int analizeLine(char* line, ExportOptions& opts ){
 			opts.exportRoothPath.append(scanResult1);
 			break;
 		}
+                if(std::sscanf(line, "HashGenerationBenchMarkFile %s", scanResult1)==1){
+			opts.HashGenerationBenchMarkFile.clear(); 
+			opts.HashGenerationBenchMarkFile.append(scanResult1);
+			break;
+		}
 		if(std::sscanf(line, "HomeFile %s", scanResult1)==1){
 			opts.homeFile.clear(); 
 			opts.homeFile.append(scanResult1);

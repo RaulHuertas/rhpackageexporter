@@ -21,6 +21,7 @@ void RHStandardExporter::generateFinalResult(
 	stats.exportedFilesSize.resize(filenames.size());
 	result.listOfEntries.resize(filenames.size());
 	result.listOfTupples.resize(tupples.size());
+        result.listOfURLs = tupples;
 	struct ResultPack{
 		int pos;
 		int size;

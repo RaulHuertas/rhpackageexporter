@@ -32,7 +32,10 @@ int main(int argc, char** argv){
 		delete exporter;
 		return result;
 	}
-
+        
+        generateHashBenchmarkTestData(finalResult, resultStats, opts);
+        
+        
 	delete hashGenerator;
 	delete exporter;
 

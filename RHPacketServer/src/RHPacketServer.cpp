@@ -301,6 +301,8 @@ int main(int argc, char** argv)
         #endif //WIN32
         return 1;
     }
+    int one = 1; 
+    setsockopt(ListenSocket, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
 	// Setup the TCP listening socket
     iResult = ::bind( ListenSocket, result->ai_addr, (int)result->ai_addrlen);
     if (iResult == SOCKET_ERROR) {

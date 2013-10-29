@@ -82,6 +82,12 @@ private:
 /** Retorna el indice de la tupla que corresponde*/
 int RHEXPORTLIB_API isHashInPack(HashType32 hash, const ResultPackage& pack );
 
+void  RHEXPORTLIB_API generateHashBenchmarkTestData(
+                    const ResultPackage& pack, 
+                    const ExportResultStats& stats, 
+                    const ExportOptions& opts 
+);
+
 
 
 #endif //RH_PACKAGER_EXPORT_RESULT_HPP
