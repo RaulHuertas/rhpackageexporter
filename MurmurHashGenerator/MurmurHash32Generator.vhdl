@@ -65,6 +65,7 @@ architecture Estructural of MurmurHash32Generator is
     
     signal trabajando :  boolean ;
     signal resultStep1 : Step1_Capture;
+    signal resultStep2 : Step2_C1Mult;
     
 begin
 --Conectando las salidas de depuracion 
@@ -73,11 +74,11 @@ resultStep1_dbg <= resultStep1;
 canAccept <= '1';-- Siemrpe se debe poder recibir datos en este core
 
 --Definiendo la captura de datos
-CaptureProcess: process(clk, inputBlock, readInput, blockLength, finalBlock, start, operationID, seed)  begin
+CaptureStep: process(clk, inputBlock, readInput, blockLength, finalBlock, start, operationID, seed)  begin
     if rising_edge(clk) then
         if(readInput = '1') then
             resultStep1.dataValid <= true;
-            resultStep1.data <= unsigned(inputBlock);
+            resultStep1.data <= (inputBlock);
             resultStep1.dataLength <= blockLength;
             resultStep1.isFirst <= (start='1');
             resultStep1.isLast <= (finalBlock='1');
@@ -88,9 +89,28 @@ CaptureProcess: process(clk, inputBlock, readInput, blockLength, finalBlock, sta
         end if;--readInput
     end if;--clk
     
-end process CaptureProcess;
+end process CaptureStep;
 
-
+C1MultStep: process(clk, resultStep1)  
+    variable c1MutlResult : std_logic_vector(63 downto 0); 
+    begin    
+    if rising_edge(clk) then
+        
+        if(resultStep1.dataValid) then
+            c1MutlResult := (resultStep1.data*C1); 
+            resultStep2.dataValid <= true;
+            resultStep2.data <= c1MutlResult(31 downto 0);
+            resultStep2.dataLength <= resultStep1.dataLength;
+            resultStep2.isFirst <= resultStep1.isFirst;
+            resultStep2.isLast <= resultStep1.isLast;
+            resultStep2.operationID <= resultStep1.operationID;
+            resultStep2.seed <= resultStep1.seed;
+        else
+            resultStep2.dataValid <= false;
+        end if;--readInput   
+        
+    end if;--clk
+end process C1MultStep;
 
 
 end architecture Estructural;

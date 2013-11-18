@@ -33,14 +33,14 @@ use IEEE.numeric_std.all;
 
 package MurmurHashUtils is
 
-    constant c1 : unsigned(31 downto 0) := x"cc9e2d51";
-    constant c2 : unsigned(31 downto 0) := x"1b873593";
-    constant m  : unsigned(31 downto 0) := x"00000005";
-    constant n  : unsigned(31 downto 0) := x"e6546b64";
+    constant C1 : std_logic_vector(31 downto 0) := x"cc9e2d51";
+    constant C2 : unsigned(31 downto 0) := x"1b873593";
+    constant M  : unsigned(31 downto 0) := x"00000005";
+    constant N  : unsigned(31 downto 0) := x"e6546b64";
 
 type Step1_Capture is record
     dataValid           : boolean;    --! Indica que los datos capturados en este datoa ctual son validos
-    data                : unsigned(31 downto 0);           --! Guarda los datos recibidos
+    data                : std_logic_vector(31 downto 0);           --! Guarda los datos recibidos
     dataLength          : std_logic_vector(1 downto 0);
     isFirst             : boolean;
     isLast              : boolean;
@@ -48,10 +48,19 @@ type Step1_Capture is record
     seed                : std_logic_vector(31 downto 0);
 end record Step1_Capture;
 
-
+type Step2_C1Mult is record
+    dataValid           : boolean;    --! Indica que los datos capturados en este datoa ctual son validos
+    data                : std_logic_vector(31 downto 0);           --! Guarda los datos recibidos
+    dataLength          : std_logic_vector(1 downto 0);
+    isFirst             : boolean;
+    isLast              : boolean;
+    operationID         : std_logic_vector(31 downto 0); --31 es el 'size' maximo del opID
+    seed                : std_logic_vector(31 downto 0);
+end record Step2_C1Mult;
 
 
 end MurmurHashUtils;
+
 
 
 
