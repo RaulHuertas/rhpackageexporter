@@ -29,11 +29,14 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.std_logic_unsigned.ALL;
+use IEEE.numeric_std.all;
+use work.MurmurHashUtils.ALL;
 
 entity MurmurHash32Generator is
 	generic ( 
-		ID_PRESENT: boolean = true; 
-		ID_LENGTH: integer = 31
+		ID_PRESENT: boolean := true; 
+		ID_LENGTH: integer := 31
 	);
 	port(
 		--ENTRADAS
@@ -45,19 +48,50 @@ entity MurmurHash32Generator is
 		operationID : in std_logic_vector(ID_LENGTH downto 0);
 		seed : in std_logic_vector(31 downto 0);
 		--SALIDAS
-		resultReady : in std_logic;
-		result : out std_logic_vector(31 downto 0)
-		resultID : in std_logic_vector(ID_LENGTH downto 0);
+		canAccept : out std_logic;
+		resultReady : out std_logic;
+		result : out std_logic_vector(31 downto 0);
+		resultID : out std_logic_vector(ID_LENGTH downto 0);
 		--RELOJ
 		clk : in std_logic;
-		
+		--Salidas de depuracion
+		resultStep1_dbg : out Step1_Capture
 	);
 end MurmurHash32Generator;
 
+
+
 architecture Estructural of MurmurHash32Generator is
-
+    
+    signal trabajando :  boolean ;
+    signal resultStep1 : Step1_Capture;
+    
 begin
+--Conectando las salidas de depuracion 
+resultStep1_dbg <= resultStep1;
+
+canAccept <= '1';-- Siemrpe se debe poder recibir datos en este core
+
+--Definiendo la captura de datos
+CaptureProcess: process(clk, inputBlock, readInput, blockLength, finalBlock, start, operationID, seed)  begin
+    if rising_edge(clk) then
+        if(readInput = '1') then
+            resultStep1.dataValid <= true;
+            resultStep1.data <= unsigned(inputBlock);
+            resultStep1.dataLength <= blockLength;
+            resultStep1.isFirst <= (start='1');
+            resultStep1.isLast <= (finalBlock='1');
+            resultStep1.operationID <= operationID;
+            resultStep1.seed <= seed;
+        else
+            resultStep1.dataValid <= false;
+        end if;--readInput
+    end if;--clk
+    
+end process CaptureProcess;
 
 
-end architecture MurmurHash32Generator;
+
+
+end architecture Estructural;
 
