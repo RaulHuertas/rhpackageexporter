@@ -66,12 +66,21 @@ architecture Estructural of MurmurHash32Generator is
     signal trabajando :  boolean ;
     signal resultStep1 : Step1_Capture;
     signal resultStep2 : Step2_C1Mult;
+    signal resultStep3 : Step3_R1;
+    signal resultStep4 : Step4_C2Mult;
+    signal resultStep5 : Step5_HashResult;
+    
+    signal K : std_logic_vector(31 downto 0);
+    signal hash : std_logic_vector(31 downto 0);
     
 begin
 --Conectando las salidas de depuracion 
 resultStep1_dbg <= resultStep1;
 
 canAccept <= '1';-- Siemrpe se debe poder recibir datos en este core
+
+K <= resultStep4.data;-- El valor final de K en la pipeline
+
 
 --Definiendo la captura de datos
 CaptureStep: process(clk, inputBlock, readInput, blockLength, finalBlock, start, operationID, seed)  begin
@@ -111,6 +120,51 @@ C1MultStep: process(clk, resultStep1)
         
     end if;--clk
 end process C1MultStep;
+
+R1Step: process(clk, resultStep2)  
+    begin    
+    if rising_edge(clk) then
+        
+        if(resultStep2.dataValid) then
+            
+            resultStep3.dataValid           <= true;
+            resultStep3.data(31 downto 13)                <= resultStep2.data(18 downto 0);
+            resultStep3.data(12 downto 0)                <= resultStep2.data(31 downto 19);
+            resultStep3.dataLength          <= resultStep2.dataLength;
+            resultStep3.isFirst             <= resultStep2.isFirst;
+            resultStep3.isLast              <= resultStep2.isLast;
+            resultStep3.operationID         <= resultStep2.operationID;
+            resultStep3.seed                <= resultStep2.seed;
+        else
+            resultStep3.dataValid           <= false;
+        end if;--readInput   
+        
+    end if;--clk
+end process R1Step;
+
+
+C2MultStep: process(clk, resultStep3)  
+    variable c2MutlResult : std_logic_vector(63 downto 0); 
+    begin    
+    if rising_edge(clk) then
+        
+        if(resultStep3.dataValid) then
+            c2MutlResult := (resultStep3.data*C2); 
+            resultStep4.dataValid       <= true;
+            resultStep4.data            <= c2MutlResult(31 downto 0);
+            resultStep4.dataLength      <= resultStep3.dataLength;
+            resultStep4.isFirst         <= resultStep3.isFirst;
+            resultStep4.isLast          <= resultStep3.isLast;
+            resultStep4.operationID     <= resultStep3.operationID;
+            resultStep4.seed            <= resultStep3.seed;
+        else
+            resultStep4.dataValid <= false;
+        end if;--readInput   
+        
+    end if;--clk
+end process C2MultStep;
+
+
 
 
 end architecture Estructural;
