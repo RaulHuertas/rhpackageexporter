@@ -81,14 +81,14 @@ type Step4_C2Mult is record
 end record Step4_C2Mult;
 
 type Step5_HashResult is record
-    dataValid           : boolean;    --! Indica que los datos capturados en este datoa ctual son validos
-    data                : std_logic_vector(31 downto 0);           --! Guarda los datos recibidos
-    dataLength          : std_logic_vector(1 downto 0);
-    isFirst             : boolean;
-    isLast              : boolean;
+    --dataValid           : boolean;    --! Indica que los datos capturados en este datoa ctual son validos
+    hash                : std_logic_vector(31 downto 0);           --! Guarda los datos recibidos
+    --dataLength          : std_logic_vector(1 downto 0);
+    --isFirst             : boolean;
+    --isLast              : boolean;
     operationID         : std_logic_vector(31 downto 0); --31 es el 'size' maximo del opID
-    seed                : std_logic_vector(31 downto 0);
-    resultReady         : std_logic;
+    --seed                : std_logic_vector(31 downto 0);
+    resultReady         : boolean;    
 end record Step5_HashResult;
 
 
@@ -99,7 +99,7 @@ function funcionFinalHashOperation_4B(
 ) return std_logic_vector is
     variable xorResult          : std_logic_vector(31 downto 0);
     variable rotR2Result        : std_logic_vector(31 downto 0);
-    variable multMResult_temp   : std_logic_vector(64 downto 0);
+    variable multMResult_temp   : std_logic_vector(63 downto 0);
     variable multMResult        : std_logic_vector(31 downto 0);
     variable additionNResult    : std_logic_vector(31 downto 0);
 begin
@@ -113,7 +113,41 @@ begin
 end function funcionFinalHashOperation_4B;
 
 
+function mh3_boolean_to_std_logic(a: boolean) return std_logic is
+begin
+    if a then
+        return('1');
+    else
+        return('0');
+    end if;
+end function mh3_boolean_to_std_logic;
 
+
+component MurmurHash32Generator is
+	generic ( 
+		ID_PRESENT: boolean := true; 
+		ID_LENGTH: integer := 31
+	);
+	port(
+		--ENTRADAS
+		inputBlock : in std_logic_vector(31 downto 0);
+		readInput : in std_logic;
+		blockLength : in std_logic_vector(1 downto 0);
+		finalBlock : in std_logic;
+		start : in std_logic;
+		operationID : in std_logic_vector(ID_LENGTH downto 0);
+		seed : in std_logic_vector(31 downto 0);
+		--SALIDAS
+		canAccept : out std_logic;
+		resultReady : out std_logic;
+		result : out std_logic_vector(31 downto 0);
+		resultID : out std_logic_vector(ID_LENGTH downto 0);
+		--RELOJ
+		clk : in std_logic;
+		--Salidas de depuracion
+		resultStep1_dbg : out Step1_Capture
+	);
+end component MurmurHash32Generator;
 
 
 end MurmurHashUtils;

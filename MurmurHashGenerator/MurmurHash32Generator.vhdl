@@ -71,7 +71,7 @@ architecture Estructural of MurmurHash32Generator is
     signal resultStep5 : Step5_HashResult;
     
     signal K : std_logic_vector(31 downto 0);
-    signal hash : std_logic_vector(31 downto 0);
+    signal Hash : std_logic_vector(31 downto 0);
     
 begin
 --Conectando las salidas de depuracion 
@@ -80,6 +80,8 @@ resultStep1_dbg <= resultStep1;
 canAccept <= '1';-- Siemrpe se debe poder recibir datos en este core
 
 K <= resultStep4.data;-- El valor final de K en la pipeline
+Hash <= resultStep5.hash;
+
 
 
 --Definiendo la captura de datos
@@ -91,7 +93,9 @@ CaptureStep: process(clk, inputBlock, readInput, blockLength, finalBlock, start,
             resultStep1.dataLength <= blockLength;
             resultStep1.isFirst <= (start='1');
             resultStep1.isLast <= (finalBlock='1');
-            resultStep1.operationID <= operationID;
+            if(resultStep1.isFirst) then
+                resultStep1.operationID <= operationID;
+            end if;
             resultStep1.seed <= seed;
         else
             resultStep1.dataValid <= false;
@@ -104,7 +108,6 @@ C1MultStep: process(clk, resultStep1)
     variable c1MutlResult : std_logic_vector(63 downto 0); 
     begin    
     if rising_edge(clk) then
-        
         if(resultStep1.dataValid) then
             c1MutlResult := (resultStep1.data*C1); 
             resultStep2.dataValid <= true;
@@ -164,7 +167,27 @@ C2MultStep: process(clk, resultStep3)
     end if;--clk
 end process C2MultStep;
 
+UpdateHashStep: process(clk, resultStep3) 
+begin
+    if(resultStep4.dataValid) then
+        
+        if(resultStep4.isFirst)then
+            resultStep5.hash <= funcionFinalHashOperation_4B(resultStep4.seed, K);
+        else
+            resultStep5.hash <= funcionFinalHashOperation_4B(Hash, K);
+        end if;
+        resultStep5.operationID <= resultStep4.operationID;
+        resultStep5.resultReady <= (resultStep4.isLast);
+    else
+        
+    end if;--readInput  
+    
+end process UpdateHashStep;
 
+--Conectando las salidas a este ultimo paso
+resultReady <= mh3_boolean_to_std_logic(resultStep5.resultReady);
+result <= resultStep5.hash;
+resultID <= resultStep5.operationID;
 
 
 end architecture Estructural;
