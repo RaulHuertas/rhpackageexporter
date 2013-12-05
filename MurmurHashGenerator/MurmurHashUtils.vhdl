@@ -129,23 +129,27 @@ component MurmurHash32Generator is
 		ID_LENGTH: integer := 31
 	);
 	port(
-		--ENTRADAS
-		inputBlock : in std_logic_vector(31 downto 0);
-		readInput : in std_logic;
-		blockLength : in std_logic_vector(1 downto 0);
-		finalBlock : in std_logic;
-		start : in std_logic;
-		operationID : in std_logic_vector(ID_LENGTH downto 0);
-		seed : in std_logic_vector(31 downto 0);
-		--SALIDAS
-		canAccept : out std_logic;
-		resultReady : out std_logic;
-		result : out std_logic_vector(31 downto 0);
-		resultID : out std_logic_vector(ID_LENGTH downto 0);
-		--RELOJ
-		clk : in std_logic;
-		--Salidas de depuracion
-		resultStep1_dbg : out Step1_Capture
+			--ENTRADAS
+    		inputBlock : in std_logic_vector(31 downto 0);
+    		readInput : in std_logic;
+    		blockLength : in std_logic_vector(1 downto 0);
+    		finalBlock : in std_logic;
+    		start : in std_logic;
+    		operationID : in std_logic_vector(ID_LENGTH downto 0);
+    		seed : in std_logic_vector(31 downto 0);
+    		--SALIDAS
+    		canAccept : out std_logic;
+    		resultReady : out std_logic;
+    		result : out std_logic_vector(31 downto 0);
+    		resultID : out std_logic_vector(ID_LENGTH downto 0);
+    		--RELOJ
+    		clk : in std_logic;
+    		--Salidas de depuracion
+    		dataStep1_dbg : out std_logic_vector(31 downto 0);
+    		dataStep2_dbg : out std_logic_vector(31 downto 0);
+    		dataStep3_dbg : out std_logic_vector(31 downto 0);
+    		dataStep4_dbg : out std_logic_vector(31 downto 0);
+    		dataStep5_dbg : out std_logic_vector(31 downto 0)
 	);
 end component MurmurHash32Generator;
 

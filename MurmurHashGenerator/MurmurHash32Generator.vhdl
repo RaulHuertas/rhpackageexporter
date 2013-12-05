@@ -55,7 +55,11 @@ entity MurmurHash32Generator is
 		--RELOJ
 		clk : in std_logic;
 		--Salidas de depuracion
-		resultStep1_dbg : out Step1_Capture
+		dataStep1_dbg : out std_logic_vector(31 downto 0);
+		dataStep2_dbg : out std_logic_vector(31 downto 0);
+		dataStep3_dbg : out std_logic_vector(31 downto 0);
+		dataStep4_dbg : out std_logic_vector(31 downto 0);
+		dataStep5_dbg : out std_logic_vector(31 downto 0)
 	);
 end MurmurHash32Generator;
 
@@ -75,7 +79,11 @@ architecture Estructural of MurmurHash32Generator is
     
 begin
 --Conectando las salidas de depuracion 
-resultStep1_dbg <= resultStep1;
+dataStep1_dbg <= resultStep1.data;
+dataStep2_dbg <= resultStep1.data;
+dataStep3_dbg <= resultStep1.data;
+dataStep4_dbg <= resultStep1.data;
+dataStep5_dbg <= resultStep1.data;
 
 canAccept <= '1';-- Siemrpe se debe poder recibir datos en este core
 

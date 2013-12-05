@@ -52,7 +52,14 @@ architecture structural of ImplementationTest1 is
     type registroEntradas is array (27 downto 0) of std_logic_vector(7 downto 0);
     signal registro : registroEntradas;
     signal resultID_output : std_logic_vector(31 downto 0);
-    signal resultStep1_dbg_output : Step1_Capture;
+    signal dataStep1_dbg : std_logic_vector(31 downto 0);
+    signal dataStep2_dbg : std_logic_vector(31 downto 0);
+    signal dataStep3_dbg : std_logic_vector(31 downto 0);
+    signal dataStep4_dbg : std_logic_vector(31 downto 0);
+    signal dataStep5_dbg : std_logic_vector(31 downto 0);
+    signal inputBlock : std_logic_vector(31 downto 0);
+    signal operationID : std_logic_vector(31 downto 0);
+    signal seed : std_logic_vector(31 downto 0); 
 begin
     -- generar al logica del registro de salto
 --EntradaDatos: process( clk, registro, inputData)  begin
@@ -80,26 +87,31 @@ begin
           
     end generate salto;
     
+    inputBlock <= registro(0)&registro(1)&registro(2)&registro(3);
+    operationID <= registro(8)&registro(9)&registro(10)&registro(11);
+    seed <= registro(12)&registro(13)&registro(14)&registro(15);
  --instanciar el modulo a probar
  hashGenerator: work.MurmurHashUtils.MurmurHash32Generator port map
  (  
     --entradas
-    inputBlock      => registro(0)&registro(1)&registro(2)&registro(3),     
+    inputBlock      => inputBlock ,     
     readInput       => registro(4)(0),
     blockLength     => registro(5)(1 downto 0), 
     finalBlock      => registro(6)(0),
     start           => registro(7)(0),
-    operationID     => registro(8)&registro(9)&registro(10)&registro(11),
-    seed            => registro(12)&registro(13)&registro(14)&registro(15),
+    operationID     => operationID,
+    seed            => seed,
     --salidas
     canAccept =>   canAccept_output,
     resultReady =>   resultReady_output,
     result =>   result_output,
     resultID =>   resultID_output,
     clk => clk,
-    resultStep1_dbg => resultStep1_dbg_output
+    dataStep1_dbg => dataStep1_dbg,
+    dataStep2_dbg => dataStep2_dbg,
+    dataStep3_dbg => dataStep3_dbg,
+    dataStep4_dbg => dataStep4_dbg,
+    dataStep5_dbg => dataStep5_dbg
  );
     
 end architecture structural;
-
-
