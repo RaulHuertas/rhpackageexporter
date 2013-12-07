@@ -212,17 +212,18 @@ end process C2MultStep;
 UpdateHashStep: process(clk, resultStep4) 
 begin
     if rising_edge(clk) then
-        if(resultStep4.dataValid) then
-            
+        if(resultStep4.dataValid) then            
             if(resultStep4.isFirst)then
                 resultStep5.hash <= funcionFinalHashOperation_4B(resultStep4.seed, resultStep4.data);
             else
                 resultStep5.hash <= funcionFinalHashOperation_4B(resultStep5.hash, resultStep4.data);
             end if;
             resultStep5.operationID <= resultStep4.operationID;
-            resultStep5.resultReady <= (resultStep4.isLast);
+            resultStep5.resultReady <= true;
+            resultStep5.isFirst <= (resultStep4.isFirst);
+            resultStep5.isLast <= (resultStep4.isLast);
         else
-            
+            resultStep5.resultReady <= false;
         end if;--readInput  
     end if;--clk
 end process UpdateHashStep;
@@ -234,10 +235,12 @@ begin
     if rising_edge(clk) then
         if(resultStep5.resultReady) then
             mixed.hash <= resultStep5.hash;
-            mixed.operationID <= resultStep5.operationID;
-            mixed.resultReady <= resultStep5.resultReady;
-            mixed.totalLen <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0100";            
+            mixed.operationID <= resultStep5.operationID;            
+            mixed.totalLen <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0100"; 
+            mixed.isFirst <= (resultStep5.isFirst);
+            mixed.isLast <= (resultStep5.isLast);
         end if;--readInput  
+        mixed.resultReady <= resultStep5.resultReady;
     end if;--clk
 end process UpdateMix;
 
@@ -252,7 +255,10 @@ begin
             finalStep1.hash <= mixed.hash xor mixed.totalLen;
             finalStep1.operationID <= mixed.operationID;
             finalStep1.resultReady <= mixed.resultReady;
+            finalStep1.isFirst <= (mixed.isFirst);
+            finalStep1.isLast <= (mixed.isLast); 
         end if;--readInput
+        finalStep1.resultReady <= mixed.resultReady;
     end if;--clk
 end process FinalProc_Step1;
 
@@ -263,7 +269,10 @@ begin
             finalStep2.hash <= xor_with_shiftRight(finalStep1.hash, FinalShift1);
             finalStep2.operationID <= finalStep1.operationID;
             finalStep2.resultReady <= finalStep1.resultReady;
+            finalStep2.isFirst <= finalStep1.isFirst;
+            finalStep2.isLast <= finalStep1.isLast; 
         end if;--readInput
+        finalStep2.resultReady <= finalStep1.resultReady;
     end if;--clk
 end process FinalProc_Step2;
 
@@ -279,7 +288,10 @@ begin
             finalStep3.hash <= saturatedMult(finalStep2.hash , FinalC1);
             finalStep3.operationID <= finalStep2.operationID;
             finalStep3.resultReady <= finalStep2.resultReady;
+            finalStep3.isFirst <= (finalStep2.isFirst);
+            finalStep3.isLast <= (finalStep2.isLast); 
         end if;--readInput
+        finalStep3.resultReady <= finalStep2.resultReady;
     end if;--clk
 end process FinalProc_Step3;
 
@@ -290,7 +302,10 @@ begin
             finalStep4.hash <= xor_with_shiftRight(finalStep3.hash, FinalShift2);
             finalStep4.operationID <= finalStep3.operationID;
             finalStep4.resultReady <= finalStep3.resultReady;
+            finalStep4.isFirst <= (finalStep3.isFirst);
+            finalStep4.isLast <= (finalStep3.isLast); 
         end if;--readInput
+        finalStep4.resultReady <= finalStep3.resultReady;
     end if;--clk
 end process FinalProc_Step4;
 
@@ -306,7 +321,10 @@ begin
             finalStep5.hash <= saturatedMult(finalStep4.hash , FinalC2);
             finalStep5.operationID <= finalStep4.operationID;
             finalStep5.resultReady <= finalStep4.resultReady;
+            finalStep5.isFirst <= (finalStep4.isFirst);
+            finalStep5.isLast <= (finalStep4.isLast); 
         end if;--readInput
+        finalStep5.resultReady <= finalStep4.resultReady; 
     end if;--clk
 end process FinalProc_Step5;
 
@@ -317,7 +335,10 @@ begin
             finalStep6.hash <= xor_with_shiftRight(finalStep5.hash, FinalShift3);
             finalStep6.operationID <= finalStep5.operationID;
             finalStep6.resultReady <= finalStep5.resultReady;
+            finalStep6.isFirst <= (finalStep5.isFirst);
+            finalStep6.isLast <= (finalStep5.isLast); 
         end if;--readInput
+        finalStep6.resultReady <= finalStep5.resultReady; 
     end if;--clk
 end process FinalProc_Step6;
 

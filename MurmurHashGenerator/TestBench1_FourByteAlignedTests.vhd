@@ -137,15 +137,16 @@ stim_proc: process
        begin                
           -- hold reset state for 100 ns.
           wait for clk_period*10;
+          wait for clk_period/2;
           
           --PRUEBA 1, HASH DEL VECTOR 0
           --Se einicializan los datos y
           inputBlock  <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";   
           blockLength <= "11";
           finalBlock <= '1';
-          start <= '1';          
           operationID <= "0101"&"0101"&"0101"&"0101"&"0101"&"0101"&"0101"&"0101";
           seed <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
+          start <= '1';     
           readInput <= '0';
           wait for clk_period;
           --hacer que realize una lectura de datos

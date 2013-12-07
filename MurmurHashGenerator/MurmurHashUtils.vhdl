@@ -91,6 +91,8 @@ type Step5_HashResult is record
     hash                : std_logic_vector(31 downto 0);           --! Guarda los datos recibidos
     operationID         : std_logic_vector(31 downto 0); --31 es el 'size' maximo del opID
     resultReady         : boolean;    
+    isFirst             : boolean;
+    isLast              : boolean;
 end record Step5_HashResult;
 
 --PASOS DE LA ETAPA FINAL DEL CALCULO DEl HASH
@@ -99,6 +101,8 @@ type FinalStep is record
     totalLen            : std_logic_vector(31 downto 0);   --! Longitud de todos los datos recibidos    
     operationID         : std_logic_vector(31 downto 0); --31 es el 'size' maximo del opID    
     resultReady         : boolean;    
+    isFirst             : boolean;
+    isLast              : boolean;
 end record FinalStep;
 
 
