@@ -64,7 +64,17 @@ entity MurmurHash32Generator is
         dataStep2_ID_dbg : out std_logic_vector(31 downto 0);
         dataStep3_ID_dbg : out std_logic_vector(31 downto 0);
         dataStep4_ID_dbg : out std_logic_vector(31 downto 0);
-      	dataStep5_ID_dbg : out std_logic_vector(31 downto 0)
+      	dataStep5_ID_dbg : out std_logic_vector(31 downto 0);        
+        finalStep1_dbg : out std_logic_vector(31 downto 0);
+        finalStep2_dbg : out std_logic_vector(31 downto 0);
+        finalStep3_dbg : out std_logic_vector(31 downto 0);
+        finalStep4_dbg : out std_logic_vector(31 downto 0);
+        finalStep5_dbg : out std_logic_vector(31 downto 0);
+        finalStep1_ID_dbg : out std_logic_vector(31 downto 0);
+        finalStep2_ID_dbg : out std_logic_vector(31 downto 0);
+        finalStep3_ID_dbg : out std_logic_vector(31 downto 0);
+        finalStep4_ID_dbg : out std_logic_vector(31 downto 0);
+        finalStep5_ID_dbg : out std_logic_vector(31 downto 0)        
 	);
 end MurmurHash32Generator;
 
@@ -72,15 +82,22 @@ end MurmurHash32Generator;
 
 architecture Estructural of MurmurHash32Generator is
     
-    signal trabajando :  boolean ;
-    signal resultStep1 : Step1_Capture;
-    signal resultStep2 : Step2_C1Mult;
-    signal resultStep3 : Step3_R1;
-    signal resultStep4 : Step4_C2Mult;
-    signal resultStep5 : Step5_HashResult;
+    signal trabajando   :  boolean ;
+    signal resultStep1  : Step1_Capture;
+    signal resultStep2  : Step2_C1Mult;
+    signal resultStep3  : Step3_R1;
+    signal resultStep4  : Step4_C2Mult;
+    signal resultStep5  : Step5_HashResult;
+    signal mixed       : FinalStep;
+    signal finalStep1   : FinalStep;
+    signal finalStep2   : FinalStep;
+    signal finalStep3   : FinalStep;
+    signal finalStep4   : FinalStep;
+    signal finalStep5   : FinalStep;
+    signal finalStep6   : FinalStep;
     
-    signal K : std_logic_vector(31 downto 0);
-    signal Hash : std_logic_vector(31 downto 0);
+    --signal K : std_logic_vector(31 downto 0);
+    --signal Hash : std_logic_vector(31 downto 0);
     
 begin
 --Conectando las salidas de depuracion 
@@ -94,12 +111,18 @@ dataStep2_ID_dbg <= resultStep2.operationID;
 dataStep3_ID_dbg <= resultStep3.operationID;
 dataStep4_ID_dbg <= resultStep4.operationID;
 dataStep5_ID_dbg <= resultStep5.operationID;
-
+finalStep1_dbg <= finalStep1.hash;
+finalStep2_dbg <= finalStep2.hash;
+finalStep3_dbg <= finalStep3.hash;
+finalStep4_dbg <= finalStep4.hash;
+finalStep5_dbg <= finalStep5.hash;
+finalStep1_ID_dbg <= finalStep1.operationID;
+finalStep2_ID_dbg <= finalStep2.operationID;
+finalStep3_ID_dbg <= finalStep3.operationID;
+finalStep4_ID_dbg <= finalStep4.operationID;
+finalStep5_ID_dbg <= finalStep5.operationID;
 
 canAccept <= '1';-- Siemrpe se debe poder recibir datos en este core
-
-K <= resultStep4.data;-- El valor final de K en la pipeline
-Hash <= resultStep5.hash;
 
 
 
@@ -186,27 +209,125 @@ C2MultStep: process(clk, resultStep3)
     end if;--clk
 end process C2MultStep;
 
-UpdateHashStep: process(clk, resultStep4, Hash, K) 
+UpdateHashStep: process(clk, resultStep4) 
 begin
-    if(resultStep4.dataValid) then
-        
-        if(resultStep4.isFirst)then
-            resultStep5.hash <= funcionFinalHashOperation_4B(resultStep4.seed, K);
+    if rising_edge(clk) then
+        if(resultStep4.dataValid) then
+            
+            if(resultStep4.isFirst)then
+                resultStep5.hash <= funcionFinalHashOperation_4B(resultStep4.seed, resultStep4.data);
+            else
+                resultStep5.hash <= funcionFinalHashOperation_4B(resultStep5.hash, resultStep4.data);
+            end if;
+            resultStep5.operationID <= resultStep4.operationID;
+            resultStep5.resultReady <= (resultStep4.isLast);
         else
-            resultStep5.hash <= funcionFinalHashOperation_4B(Hash, K);
-        end if;
-        resultStep5.operationID <= resultStep4.operationID;
-        resultStep5.resultReady <= (resultStep4.isLast);
-    else
-        
-    end if;--readInput  
-    
+            
+        end if;--readInput  
+    end if;--clk
 end process UpdateHashStep;
 
+
+
+UpdateMix: process(clk, resultStep5) 
+begin
+    if rising_edge(clk) then
+        if(resultStep5.resultReady) then
+            mixed.hash <= resultStep5.hash;
+            mixed.operationID <= resultStep5.operationID;
+            mixed.resultReady <= resultStep5.resultReady;
+            mixed.totalLen <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0100";            
+        end if;--readInput  
+    end if;--clk
+end process UpdateMix;
+
+
+
+
+
+FinalProc_Step1: process(clk, mixed) 
+begin
+    if rising_edge(clk) then
+        if(mixed.resultReady) then        
+            finalStep1.hash <= mixed.hash xor mixed.totalLen;
+            finalStep1.operationID <= mixed.operationID;
+            finalStep1.resultReady <= mixed.resultReady;
+        end if;--readInput
+    end if;--clk
+end process FinalProc_Step1;
+
+FinalProc_Step2: process(clk, finalStep1) 
+begin
+    if rising_edge(clk) then
+        if(finalStep1.resultReady) then        
+            finalStep2.hash <= xor_with_shiftRight(finalStep1.hash, FinalShift1);
+            finalStep2.operationID <= finalStep1.operationID;
+            finalStep2.resultReady <= finalStep1.resultReady;
+        end if;--readInput
+    end if;--clk
+end process FinalProc_Step2;
+
+
+
+
+
+
+FinalProc_Step3: process(clk, finalStep2) 
+begin
+    if rising_edge(clk) then
+        if(finalStep2.resultReady) then        
+            finalStep3.hash <= saturatedMult(finalStep2.hash , FinalC1);
+            finalStep3.operationID <= finalStep2.operationID;
+            finalStep3.resultReady <= finalStep2.resultReady;
+        end if;--readInput
+    end if;--clk
+end process FinalProc_Step3;
+
+FinalProc_Step4: process(clk, finalStep3) 
+begin
+    if rising_edge(clk) then
+        if(finalStep3.resultReady) then        
+            finalStep4.hash <= xor_with_shiftRight(finalStep3.hash, FinalShift2);
+            finalStep4.operationID <= finalStep3.operationID;
+            finalStep4.resultReady <= finalStep3.resultReady;
+        end if;--readInput
+    end if;--clk
+end process FinalProc_Step4;
+
+
+
+
+
+
+FinalProc_Step5: process(clk, finalStep4) 
+begin
+    if rising_edge(clk) then
+        if(finalStep4.resultReady) then        
+            finalStep5.hash <= saturatedMult(finalStep4.hash , FinalC2);
+            finalStep5.operationID <= finalStep4.operationID;
+            finalStep5.resultReady <= finalStep4.resultReady;
+        end if;--readInput
+    end if;--clk
+end process FinalProc_Step5;
+
+FinalProc_Step6: process(clk, finalStep5) 
+begin
+    if rising_edge(clk) then
+        if(finalStep5.resultReady) then        
+            finalStep6.hash <= xor_with_shiftRight(finalStep5.hash, FinalShift3);
+            finalStep6.operationID <= finalStep5.operationID;
+            finalStep6.resultReady <= finalStep5.resultReady;
+        end if;--readInput
+    end if;--clk
+end process FinalProc_Step6;
+
+
+
+
 --Conectando las salidas a este ultimo paso
-resultReady <= mh3_boolean_to_std_logic(resultStep5.resultReady);
-result <= resultStep5.hash;
-resultID <= resultStep5.operationID;
+resultReady <= mh3_boolean_to_std_logic(finalStep6.resultReady);
+result <= finalStep6.hash; 
+resultID <= finalStep6.operationID;
 
 
 end architecture Estructural;

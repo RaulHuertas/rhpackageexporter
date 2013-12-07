@@ -63,6 +63,19 @@ architecture structural of ImplementationTest1 is
     signal dataStep3_ID_dbg : std_logic_vector(31 downto 0);
     signal dataStep4_ID_dbg : std_logic_vector(31 downto 0);
     signal dataStep5_ID_dbg : std_logic_vector(31 downto 0);
+    
+--    signal finalStep1_dbg : out std_logic_vector(31 downto 0);
+--    signal finalStep2_dbg : out std_logic_vector(31 downto 0);
+--    signal finalStep3_dbg : out std_logic_vector(31 downto 0);
+--    signal finalStep4_dbg : out std_logic_vector(31 downto 0);
+--    signal finalStep5_dbg : out std_logic_vector(31 downto 0)
+--    signal finalStep1_ID_dbg : out std_logic_vector(31 downto 0);
+--    signal finalStep2_ID_dbg : out std_logic_vector(31 downto 0);
+--    signal finalStep3_ID_dbg : out std_logic_vector(31 downto 0);
+--    signal finalStep4_ID_dbg : out std_logic_vector(31 downto 0);
+--    signal finalStep5_ID_dbg : out std_logic_vector(31 downto 0)
+    
+    
         
     signal inputBlock : std_logic_vector(31 downto 0);
     signal operationID : std_logic_vector(31 downto 0);
@@ -123,7 +136,18 @@ begin
     dataStep2_ID_dbg => dataStep2_ID_dbg,
     dataStep3_ID_dbg => dataStep3_ID_dbg,
     dataStep4_ID_dbg => dataStep4_ID_dbg,
-    dataStep5_ID_dbg => dataStep5_ID_dbg
+    dataStep5_ID_dbg => dataStep5_ID_dbg,
+    
+    finalStep1_dbg => open,
+    finalStep2_dbg => open,
+    finalStep3_dbg => open,
+    finalStep4_dbg => open,
+    finalStep5_dbg => open,
+    finalStep1_ID_dbg => open,
+    finalStep2_ID_dbg => open,
+    finalStep3_ID_dbg => open,
+    finalStep4_ID_dbg => open,
+    finalStep5_ID_dbg => open
  );
     
 end architecture structural;

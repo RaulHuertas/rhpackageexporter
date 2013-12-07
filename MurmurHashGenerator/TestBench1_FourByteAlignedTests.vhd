@@ -61,6 +61,26 @@ architecture Behavioral of TestBench1_FourByteAlignedTests is
     signal dataStep3_dbg : std_logic_vector(31 downto 0);
     signal dataStep4_dbg : std_logic_vector(31 downto 0);
     signal dataStep5_dbg : std_logic_vector(31 downto 0);
+    signal dataStep1_ID_dbg : std_logic_vector(31 downto 0);
+    signal dataStep2_ID_dbg : std_logic_vector(31 downto 0);
+    signal dataStep3_ID_dbg : std_logic_vector(31 downto 0);
+    signal dataStep4_ID_dbg : std_logic_vector(31 downto 0);
+    signal dataStep5_ID_dbg : std_logic_vector(31 downto 0);
+
+    signal finalStep1_dbg : std_logic_vector(31 downto 0);
+    signal finalStep2_dbg : std_logic_vector(31 downto 0);
+    signal finalStep3_dbg : std_logic_vector(31 downto 0);
+    signal finalStep4_dbg : std_logic_vector(31 downto 0);
+    signal finalStep5_dbg : std_logic_vector(31 downto 0);
+    signal finalStep1_ID_dbg : std_logic_vector(31 downto 0);
+    signal finalStep2_ID_dbg : std_logic_vector(31 downto 0);
+    signal finalStep3_ID_dbg : std_logic_vector(31 downto 0);
+    signal finalStep4_ID_dbg : std_logic_vector(31 downto 0);
+    signal finalStep5_ID_dbg : std_logic_vector(31 downto 0);
+
+
+
+
 
     -- Clock period definitions
     constant clk_period : time := 10 ns;
@@ -86,7 +106,22 @@ begin
           dataStep2_dbg => dataStep2_dbg,
           dataStep3_dbg => dataStep3_dbg,
           dataStep4_dbg => dataStep4_dbg,
-          dataStep5_dbg => dataStep5_dbg
+          dataStep5_dbg => dataStep5_dbg,
+          dataStep1_ID_dbg => dataStep1_ID_dbg,
+          dataStep2_ID_dbg => dataStep2_ID_dbg,
+          dataStep3_ID_dbg => dataStep3_ID_dbg,
+          dataStep4_ID_dbg => dataStep4_ID_dbg,
+          dataStep5_ID_dbg => dataStep5_ID_dbg,
+          finalStep1_dbg => finalStep1_dbg,
+          finalStep2_dbg => finalStep2_dbg,
+          finalStep3_dbg => finalStep3_dbg,
+          finalStep4_dbg => finalStep4_dbg,
+          finalStep5_dbg => finalStep5_dbg,
+          finalStep1_ID_dbg => finalStep1_ID_dbg,
+          finalStep2_ID_dbg => finalStep2_ID_dbg,
+          finalStep3_ID_dbg => finalStep3_ID_dbg,
+          finalStep4_ID_dbg => finalStep4_ID_dbg,
+          finalStep5_ID_dbg => finalStep5_ID_dbg
     );
 
 clk_process :process
@@ -109,15 +144,17 @@ stim_proc: process
           blockLength <= "11";
           finalBlock <= '1';
           start <= '1';          
-          operationID <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
+          operationID <= "0101"&"0101"&"0101"&"0101"&"0101"&"0101"&"0101"&"0101";
           seed <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
           readInput <= '0';
           wait for clk_period;
           --hacer que realize una lectura de datos
-          readInput <= '1';
+          readInput <= '1';          
           wait for clk_period;
-          readInput <= '0';
           
+          start <= '0';--que ya no lea otro dato
+          readInput <= '0';
+          wait for clk_period;
           
          wait;
 end process stim_proc;

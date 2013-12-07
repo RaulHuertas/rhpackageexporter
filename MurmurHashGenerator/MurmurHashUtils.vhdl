@@ -38,6 +38,13 @@ package MurmurHashUtils is
     constant C2 : std_logic_vector(31 downto 0) := x"1b873593";
     constant M  : std_logic_vector(31 downto 0) := x"00000005";
     constant N  : std_logic_vector(31 downto 0) := x"e6546b64";
+    constant FinalShift1 : integer := 16;
+    constant FinalC1 : std_logic_vector(31 downto 0) := x"85ebca6b";
+    constant FinalShift2 : integer := 13;
+    constant FinalC2 : std_logic_vector(31 downto 0) := x"c2b2ae35";
+    constant FinalShift3 : integer := 16;
+    
+    
 
 type Step1_Capture is record
     dataValid           : boolean;    --! Indica que los datos capturados en este datoa ctual son validos
@@ -81,15 +88,19 @@ type Step4_C2Mult is record
 end record Step4_C2Mult;
 
 type Step5_HashResult is record
-    --dataValid           : boolean;    --! Indica que los datos capturados en este datoa ctual son validos
     hash                : std_logic_vector(31 downto 0);           --! Guarda los datos recibidos
-    --dataLength          : std_logic_vector(1 downto 0);
-    --isFirst             : boolean;
-    --isLast              : boolean;
     operationID         : std_logic_vector(31 downto 0); --31 es el 'size' maximo del opID
-    --seed                : std_logic_vector(31 downto 0);
     resultReady         : boolean;    
 end record Step5_HashResult;
+
+--PASOS DE LA ETAPA FINAL DEL CALCULO DEl HASH
+type FinalStep is record    
+    hash                : std_logic_vector(31 downto 0);           --! Hash
+    totalLen            : std_logic_vector(31 downto 0);   --! Longitud de todos los datos recibidos    
+    operationID         : std_logic_vector(31 downto 0); --31 es el 'size' maximo del opID    
+    resultReady         : boolean;    
+end record FinalStep;
+
 
 
 
@@ -123,6 +134,28 @@ begin
 end function mh3_boolean_to_std_logic;
 
 
+function saturatedMult(a: std_logic_vector; b: std_logic_vector) return std_logic_vector is
+variable fullMultResult : std_logic_vector( (a'length*2-1) downto 0); 
+begin
+    fullMultResult := a*b;
+    return fullMultResult( (a'length-1) downto 0);
+end function saturatedMult;
+
+function xor_with_shiftRight(data: std_logic_vector; constant count:integer) return std_logic_vector is
+variable value : std_logic_vector( (data'length-1) downto 0 );
+variable shifted : std_logic_vector( (data'length-1) downto 0 );
+--variable returnValue : std_logic_vector( data'length downto 0 );
+begin    
+    shifted((data'length-1-count) downto 0 ) := data((data'length-1) downto count);
+    shifted((data'length-1) downto (data'length-count) ) := ( others=>'0' );
+    return (data xor shifted);
+    --return (data );
+end function xor_with_shiftRight;
+
+
+
+
+
 component MurmurHash32Generator is
 	generic ( 
 		ID_PRESENT: boolean := true; 
@@ -154,7 +187,17 @@ component MurmurHash32Generator is
             dataStep2_ID_dbg : out std_logic_vector(31 downto 0);
             dataStep3_ID_dbg : out std_logic_vector(31 downto 0);
             dataStep4_ID_dbg : out std_logic_vector(31 downto 0);
-            dataStep5_ID_dbg : out std_logic_vector(31 downto 0)
+            dataStep5_ID_dbg : out std_logic_vector(31 downto 0);        
+            finalStep1_dbg : out std_logic_vector(31 downto 0);
+            finalStep2_dbg : out std_logic_vector(31 downto 0);
+            finalStep3_dbg : out std_logic_vector(31 downto 0);
+            finalStep4_dbg : out std_logic_vector(31 downto 0);
+            finalStep5_dbg : out std_logic_vector(31 downto 0);
+            finalStep1_ID_dbg : out std_logic_vector(31 downto 0);
+            finalStep2_ID_dbg : out std_logic_vector(31 downto 0);
+            finalStep3_ID_dbg : out std_logic_vector(31 downto 0);
+            finalStep4_ID_dbg : out std_logic_vector(31 downto 0);
+            finalStep5_ID_dbg : out std_logic_vector(31 downto 0)
 	);
 end component MurmurHash32Generator;
 
