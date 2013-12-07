@@ -57,6 +57,13 @@ architecture structural of ImplementationTest1 is
     signal dataStep3_dbg : std_logic_vector(31 downto 0);
     signal dataStep4_dbg : std_logic_vector(31 downto 0);
     signal dataStep5_dbg : std_logic_vector(31 downto 0);
+        
+    signal dataStep1_ID_dbg : std_logic_vector(31 downto 0);
+    signal dataStep2_ID_dbg : std_logic_vector(31 downto 0);
+    signal dataStep3_ID_dbg : std_logic_vector(31 downto 0);
+    signal dataStep4_ID_dbg : std_logic_vector(31 downto 0);
+    signal dataStep5_ID_dbg : std_logic_vector(31 downto 0);
+        
     signal inputBlock : std_logic_vector(31 downto 0);
     signal operationID : std_logic_vector(31 downto 0);
     signal seed : std_logic_vector(31 downto 0); 
@@ -111,7 +118,12 @@ begin
     dataStep2_dbg => dataStep2_dbg,
     dataStep3_dbg => dataStep3_dbg,
     dataStep4_dbg => dataStep4_dbg,
-    dataStep5_dbg => dataStep5_dbg
+    dataStep5_dbg => dataStep5_dbg,
+    dataStep1_ID_dbg => dataStep1_ID_dbg,
+    dataStep2_ID_dbg => dataStep2_ID_dbg,
+    dataStep3_ID_dbg => dataStep3_ID_dbg,
+    dataStep4_ID_dbg => dataStep4_ID_dbg,
+    dataStep5_ID_dbg => dataStep5_ID_dbg
  );
     
 end architecture structural;

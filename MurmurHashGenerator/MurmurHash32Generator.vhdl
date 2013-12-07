@@ -59,7 +59,12 @@ entity MurmurHash32Generator is
 		dataStep2_dbg : out std_logic_vector(31 downto 0);
 		dataStep3_dbg : out std_logic_vector(31 downto 0);
 		dataStep4_dbg : out std_logic_vector(31 downto 0);
-		dataStep5_dbg : out std_logic_vector(31 downto 0)
+		dataStep5_dbg : out std_logic_vector(31 downto 0);
+        dataStep1_ID_dbg : out std_logic_vector(31 downto 0);
+        dataStep2_ID_dbg : out std_logic_vector(31 downto 0);
+        dataStep3_ID_dbg : out std_logic_vector(31 downto 0);
+        dataStep4_ID_dbg : out std_logic_vector(31 downto 0);
+      	dataStep5_ID_dbg : out std_logic_vector(31 downto 0)
 	);
 end MurmurHash32Generator;
 
@@ -80,10 +85,16 @@ architecture Estructural of MurmurHash32Generator is
 begin
 --Conectando las salidas de depuracion 
 dataStep1_dbg <= resultStep1.data;
-dataStep2_dbg <= resultStep1.data;
-dataStep3_dbg <= resultStep1.data;
-dataStep4_dbg <= resultStep1.data;
-dataStep5_dbg <= resultStep1.data;
+dataStep2_dbg <= resultStep2.data;
+dataStep3_dbg <= resultStep3.data;
+dataStep4_dbg <= resultStep4.data;
+dataStep5_dbg <= resultStep5.hash;
+dataStep1_ID_dbg <= resultStep1.operationID;
+dataStep2_ID_dbg <= resultStep2.operationID;
+dataStep3_ID_dbg <= resultStep3.operationID;
+dataStep4_ID_dbg <= resultStep4.operationID;
+dataStep5_ID_dbg <= resultStep5.operationID;
+
 
 canAccept <= '1';-- Siemrpe se debe poder recibir datos en este core
 
@@ -101,7 +112,7 @@ CaptureStep: process(clk, inputBlock, readInput, blockLength, finalBlock, start,
             resultStep1.dataLength <= blockLength;
             resultStep1.isFirst <= (start='1');
             resultStep1.isLast <= (finalBlock='1');
-            if(resultStep1.isFirst) then
+            if (start='1') then
                 resultStep1.operationID <= operationID;
             end if;
             resultStep1.seed <= seed;
@@ -168,14 +179,14 @@ C2MultStep: process(clk, resultStep3)
             resultStep4.isLast          <= resultStep3.isLast;
             resultStep4.operationID     <= resultStep3.operationID;
             resultStep4.seed            <= resultStep3.seed;
-        else
+        else           
             resultStep4.dataValid <= false;
         end if;--readInput   
         
     end if;--clk
 end process C2MultStep;
 
-UpdateHashStep: process(clk, resultStep3) 
+UpdateHashStep: process(clk, resultStep4, Hash, K) 
 begin
     if(resultStep4.dataValid) then
         
