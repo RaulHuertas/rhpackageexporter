@@ -173,8 +173,8 @@ R1Step: process(clk, resultStep2)
         if(resultStep2.dataValid) then
             
             resultStep3.dataValid           <= true;
-            resultStep3.data(31 downto 13)                <= resultStep2.data(18 downto 0);
-            resultStep3.data(12 downto 0)                <= resultStep2.data(31 downto 19);
+            resultStep3.data(31 downto 15)                <= resultStep2.data(16 downto 0);
+            resultStep3.data(14 downto 0)                 <= resultStep2.data(31 downto 17);
             resultStep3.dataLength          <= resultStep2.dataLength;
             resultStep3.isFirst             <= resultStep2.isFirst;
             resultStep3.isLast              <= resultStep2.isLast;
@@ -338,7 +338,7 @@ begin
             finalStep6.isFirst <= (finalStep5.isFirst);
             finalStep6.isLast <= (finalStep5.isLast); 
         end if;--readInput
-        finalStep6.resultReady <= finalStep5.resultReady; 
+        finalStep6.resultReady <= finalStep5.resultReady and finalStep5.isLast; 
     end if;--clk
 end process FinalProc_Step6;
 

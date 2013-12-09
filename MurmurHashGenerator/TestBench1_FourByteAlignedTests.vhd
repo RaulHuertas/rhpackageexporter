@@ -137,26 +137,55 @@ stim_proc: process
        begin                
           -- hold reset state for 100 ns.
           wait for clk_period*10;
-          wait for clk_period/2;
           
+          
+          blockLength <= "11";
+          operationID <= "0101"&"0101"&"0101"&"0101"&"0101"&"0101"&"0101"&"0101";
           --PRUEBA 1, HASH DEL VECTOR 0
           --Se einicializan los datos y
-          inputBlock  <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";   
-          blockLength <= "11";
+          inputBlock  <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
+          start <= '1';    
           finalBlock <= '1';
-          operationID <= "0101"&"0101"&"0101"&"0101"&"0101"&"0101"&"0101"&"0101";
+          seed <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
+          readInput <= '0';
+          wait for clk_period;
+          --hacer que realize una lectura de datos
+          readInput <= '1';          
+          wait for clk_period;          
+          start <= '0';--que ya no lea otro dato
+          readInput <= '0';
+          wait for clk_period;
+          --Prueba 2 hash del vector 1
+          inputBlock  <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0001";
+          finalBlock <= '1';
           seed <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
           start <= '1';     
           readInput <= '0';
           wait for clk_period;
           --hacer que realize una lectura de datos
           readInput <= '1';          
-          wait for clk_period;
-          
+          wait for clk_period;          
           start <= '0';--que ya no lea otro dato
           readInput <= '0';
           wait for clk_period;
-          
+          wait for clk_period;
+          --PROBAR QUE AMBAS SALIDAS CONSECUTIVAS SE REALIZEN DE FORMA CONSECUTIVA          
+           start <= '1';    
+           finalBlock <= '1';
+           readInput <= '1';
+           seed <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
+           
+           inputBlock  <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
+           wait for clk_period;
+           inputBlock  <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0001";
+           wait for clk_period;
+           inputBlock  <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0010";
+           wait for clk_period;
+           inputBlock  <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0011";
+           wait for clk_period;
+           
+           readInput <= '0';
+           wait for clk_period;
          wait;
 end process stim_proc;
 
