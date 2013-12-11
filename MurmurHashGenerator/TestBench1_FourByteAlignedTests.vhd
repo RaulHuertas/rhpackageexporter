@@ -77,14 +77,43 @@ architecture Behavioral of TestBench1_FourByteAlignedTests is
     signal finalStep3_ID_dbg : std_logic_vector(31 downto 0);
     signal finalStep4_ID_dbg : std_logic_vector(31 downto 0);
     signal finalStep5_ID_dbg : std_logic_vector(31 downto 0);
+    
+    
 
 
 
-
-
+    type resultReference is array (0 to 13) of std_logic_vector(31 downto 0);
+    constant resultsBank : resultReference := ( x"2362f9de", x"fbf1402a", x"2362f9de", x"fbf1402a", x"40b23b7f", x"32850971", x"9994d794", x"4c382e54", x"7117fdd0", x"db55ec24", x"76293b50", x"7e33a1a1", x"82f2c7d0", x"885962c1" );    
+    signal resultsBankCounter : integer := 0;   
+    signal errorDetected : std_logic := '0';    
     -- Clock period definitions
     constant clk_period : time := 10 ns;
 begin
+    
+    --Inicializar el banco de resultados
+    
+    verification: process (clk, resultReady, result, resultsBankCounter)             
+    begin
+        if( rising_edge(clk) ) then
+            if( resultsBankCounter = resultReference'length ) then
+                        errorDetected <= '0';
+            else
+                if (resultReady = '1') then
+                    if( resultsBank(resultsBankCounter) /= result) then
+                        errorDetected <= '1';
+                    else
+                        errorDetected <= '0';
+                    end if;
+                    resultsBankCounter <= resultsBankCounter+1;
+                    
+                else
+                    errorDetected <= '0';
+                end if;
+            end if;
+        end if;
+    end process verification;
+
+
     uut: work.MurmurHashUtils.MurmurHash32Generator PORT MAP (
           --ENTRADAS
           inputBlock => inputBlock,
@@ -132,6 +161,9 @@ clk_process :process
         wait for clk_period/2;
     end process;
 
+
+
+
 -- Stimulus process
 stim_proc: process
        begin                
@@ -174,7 +206,7 @@ stim_proc: process
            finalBlock <= '1';
            readInput <= '1';
            seed <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
-           
+           --Probando valroes consecutivos
            inputBlock  <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
            wait for clk_period;
            inputBlock  <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0001";
@@ -183,9 +215,32 @@ stim_proc: process
            wait for clk_period;
            inputBlock  <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0011";
            wait for clk_period;
+           readInput <= '0';
+           wait for clk_period;
+           readInput <= '1';
+           inputBlock  <= "1000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
+           wait for clk_period;
+           inputBlock  <= "0100"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
+           wait for clk_period;
+           inputBlock  <= "1100"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
+           wait for clk_period;
+           inputBlock  <= "0010"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
+           wait for clk_period;           
+           
+           inputBlock  <= "1111"&"1111"&"1111"&"1111"&"1111"&"1111"&"1111"&"1111";
+           wait for clk_period;
+           inputBlock  <= "1111"&"0000"&"1111"&"0000"&"1111"&"0000"&"1111"&"0000";
+           wait for clk_period;
+           inputBlock  <= "0000"&"1111"&"0000"&"1111"&"0000"&"1111"&"0000"&"1111";
+           wait for clk_period;
+           inputBlock  <= "1100"&"1100"&"1100"&"1100"&"1100"&"1100"&"1100"&"1100";
+           wait for clk_period;           
+           
+           
            
            readInput <= '0';
            wait for clk_period;
+           
          wait;
 end process stim_proc;
 

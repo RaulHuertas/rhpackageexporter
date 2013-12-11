@@ -146,12 +146,13 @@ CaptureStep: process(clk, inputBlock, readInput, blockLength, finalBlock, start,
     
 end process CaptureStep;
 
+
 C1MultStep: process(clk, resultStep1)  
     variable c1MutlResult : std_logic_vector(63 downto 0); 
-    begin    
+    begin   
+    c1MutlResult := (resultStep1.data*C1); 
     if rising_edge(clk) then
-        if(resultStep1.dataValid) then
-            c1MutlResult := (resultStep1.data*C1); 
+        if(resultStep1.dataValid) then             
             resultStep2.dataValid <= true;
             resultStep2.data <= c1MutlResult(31 downto 0);
             resultStep2.dataLength <= resultStep1.dataLength;
