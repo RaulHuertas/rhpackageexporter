@@ -138,12 +138,12 @@ begin
 end function mh3_boolean_to_std_logic;
 
 
-function saturatedMult(a: std_logic_vector; b: std_logic_vector) return std_logic_vector is
+function ClampedMult(a: std_logic_vector; b: std_logic_vector) return std_logic_vector is
 variable fullMultResult : std_logic_vector( (a'length*2-1) downto 0); 
 begin
     fullMultResult := a*b;
     return fullMultResult( (a'length-1) downto 0);
-end function saturatedMult;
+end function ClampedMult;
 
 function xor_with_shiftRight(data: std_logic_vector; constant count:integer) return std_logic_vector is
 variable value : std_logic_vector( (data'length-1) downto 0 );
