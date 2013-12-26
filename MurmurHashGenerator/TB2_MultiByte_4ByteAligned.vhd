@@ -88,6 +88,7 @@ architecture Behavioral of TB2_MultiByte_4ByteAligned is
     type input_3e is array (0 to 2) of std_logic_vector(31 downto 0);
     
     constant entrada1 : input_2e := ( x"2362f9de", x"fbf1402a" );
+    constant entrada2 : input_3e := ( x"2362f9de", x"fbf1402a", x"3412cdab"  );
     
     
     constant resultsBank : resultReference := ( x"2362f9de", x"fbf1402a", x"2362f9de", x"fbf1402a", x"40b23b7f", x"32850971", x"9994d794", x"4c382e54", x"7117fdd0", x"db55ec24", x"76293b50", x"7e33a1a1", x"82f2c7d0", x"885962c1" );
@@ -200,12 +201,57 @@ stim_proc: process
           readInput <= '1';
           wait for clk_period;
           readInput <= '0';
-           
-           
-           readInput <= '0';
-           wait for clk_period;
-           
-         wait;
+          finalBlock <= '0';
+          start <= '0';
+          wait for 3*clk_period;
+          
+          --SEGUNDA PRUEBA
+          readInput <= '1';
+          start <= '1';    
+          finalBlock <= '0';
+          inputBlock  <= entrada2(0);
+          readInput <= '1';
+          wait for clk_period;
+          inputBlock  <= entrada2(1);          
+          start <= '0';--que lea el segundo byte(final)
+          finalBlock <= '0';
+          wait for clk_period;
+          inputBlock  <= entrada2(2);          
+          start <= '0';--que lea el segundo byte(final)
+          finalBlock <= '1';
+          wait for clk_period;
+          readInput <= '0';
+          start <= '0';--que lea el segundo byte(final)
+          finalBlock <= '0';
+          wait for clk_period;
+          
+          
+            --TERCERA PRUEBA, los mismos datos de la segunda, pero con espaciados
+            readInput <= '1';
+            start <= '1';    
+            finalBlock <= '0';
+            inputBlock  <= entrada2(0);
+            readInput <= '1';
+            wait for clk_period;
+            inputBlock  <= entrada2(1);          
+            start <= '0';--que lea el segundo byte(final)
+            finalBlock <= '0';
+            wait for clk_period;
+            readInput <= '0';
+            wait for clk_period;
+            readInput <= '0';
+            wait for clk_period;
+            readInput <= '1';
+            inputBlock  <= entrada2(2);          
+            start <= '0';--que lea el segundo byte(final)
+            finalBlock <= '1';
+            wait for clk_period;
+            readInput <= '0';
+            start <= '0';--que lea el segundo byte(final)
+            finalBlock <= '0';
+            wait for clk_period;
+          
+          wait;
 end process stim_proc;
 
 end Behavioral;

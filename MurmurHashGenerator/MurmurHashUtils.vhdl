@@ -90,6 +90,7 @@ end record Step4_C2Mult;
 type Step5_HashResult is record
     hash                : std_logic_vector(31 downto 0);           --! Guarda los datos recibidos
     operationID         : std_logic_vector(31 downto 0); --31 es el 'size' maximo del opID
+    dataLength          : std_logic_vector(1 downto 0);
     resultReady         : boolean;    
     isFirst             : boolean;
     isLast              : boolean;
