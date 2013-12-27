@@ -96,6 +96,18 @@ type Step5_HashResult is record
     isLast              : boolean;
 end record Step5_HashResult;
 
+--PASOS PARA LA ETAPA FINAL EN CASO LA LONGITUD NO SEA MULTIPLO de 4
+type Step1_EndianSwap is record
+    dataValid           : boolean;    --! Indica que los datos capturados en este datoa ctual son validos
+    data                : std_logic_vector(31 downto 0);           --! Guarda los datos recibidos
+    dataLength          : std_logic_vector(1 downto 0);
+    isFirst             : boolean;
+    isLast              : boolean;
+    operationID         : std_logic_vector(31 downto 0); --31 es el 'size' maximo del opID
+    seed                : std_logic_vector(31 downto 0);
+end record Step1_EndianSwap;
+
+
 --PASOS DE LA ETAPA FINAL DEL CALCULO DEl HASH
 type FinalStep is record    
     hash                : std_logic_vector(31 downto 0);           --! Hash
@@ -160,7 +172,9 @@ end function xor_with_shiftRight;
 
 
 
-
+--! En caso de recibir datos cuya lingitud no es multiplo de 4
+--! estos deben de alinearse empezando por inputBlock(7  downto 0)
+--! hasta inputBlock(23  downto 16)
 component MurmurHash32Generator is
 	generic ( 
 		ID_PRESENT: boolean := true; 

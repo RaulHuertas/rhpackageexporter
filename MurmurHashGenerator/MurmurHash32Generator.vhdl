@@ -64,7 +64,17 @@ entity MurmurHash32Generator is
         dataStep2_ID_dbg : out std_logic_vector(31 downto 0);
         dataStep3_ID_dbg : out std_logic_vector(31 downto 0);
         dataStep4_ID_dbg : out std_logic_vector(31 downto 0);
-      	dataStep5_ID_dbg : out std_logic_vector(31 downto 0);        
+      	dataStep5_ID_dbg : out std_logic_vector(31 downto 0);
+      	
+      	dataStepA_dbg : out std_logic_vector(31 downto 0);
+      	dataStepA_ID_dbg : out std_logic_vector(31 downto 0);
+        dataStepB_dbg : out std_logic_vector(31 downto 0);
+        dataStepB_ID_dbg : out std_logic_vector(31 downto 0);
+        dataStepC_dbg : out std_logic_vector(31 downto 0);
+        dataStepC_ID_dbg : out std_logic_vector(31 downto 0);
+        dataStepD_dbg : out std_logic_vector(31 downto 0);
+        dataStepD_ID_dbg : out std_logic_vector(31 downto 0);
+      	        
         finalStep1_dbg : out std_logic_vector(31 downto 0);
         finalStep2_dbg : out std_logic_vector(31 downto 0);
         finalStep3_dbg : out std_logic_vector(31 downto 0);
@@ -83,11 +93,18 @@ end MurmurHash32Generator;
 architecture Estructural of MurmurHash32Generator is
     
     signal trabajando   :  boolean ;
+    -- Resultados de analizar datos alineados a 4 bytes
     signal resultStep1  : Step1_Capture;
     signal resultStep2  : Step2_C1Mult;
     signal resultStep3  : Step3_R1;
     signal resultStep4  : Step4_C2Mult;
     signal resultStep5  : Step5_HashResult;
+    -- Resultados de analizar datos NO alineados a 4 bytes
+    signal resultStepA  : Step1_EndianSwap;
+    signal resultStepB  : Step2_C1Mult;
+    signal resultStepC  : Step3_R1;
+    signal resultStepD  : Step4_C2Mult;
+    --Combinar ambos resultados
     signal mixed        : FinalStep;
     signal finalStep1   : FinalStep;
     signal finalStep2   : FinalStep;
@@ -107,11 +124,21 @@ dataStep2_dbg <= resultStep2.data;
 dataStep3_dbg <= resultStep3.data;
 dataStep4_dbg <= resultStep4.data;
 dataStep5_dbg <= resultStep5.hash;
+
+dataStepA_dbg <= resultStepA.data;
+dataStepA_ID_dbg <= resultStepA.operationID;
+
+dataStepB_dbg <= resultStepB.data;
+dataStepB_ID_dbg <= resultStepB.operationID;
+
 dataStep1_ID_dbg <= resultStep1.operationID;
 dataStep2_ID_dbg <= resultStep2.operationID;
 dataStep3_ID_dbg <= resultStep3.operationID;
 dataStep4_ID_dbg <= resultStep4.operationID;
 dataStep5_ID_dbg <= resultStep5.operationID;
+
+dataStepA_ID_dbg <= resultStepA.operationID;
+
 finalStep1_dbg <= finalStep1.hash;
 finalStep2_dbg <= finalStep2.hash;
 finalStep3_dbg <= finalStep3.hash;
@@ -154,61 +181,124 @@ C1MultStep: process(clk, resultStep1)
     begin   
     c1MutlResult := (resultStep1.data*C1); 
     if rising_edge(clk) then
-        if(resultStep1.dataValid) then             
-            resultStep2.dataValid <= true;
+        if(resultStep1.dataValid) then   
             resultStep2.data <= c1MutlResult(31 downto 0);
             resultStep2.dataLength <= resultStep1.dataLength;
             resultStep2.isFirst <= resultStep1.isFirst;
             resultStep2.isLast <= resultStep1.isLast;
             resultStep2.operationID <= resultStep1.operationID;
             resultStep2.seed <= resultStep1.seed;
-        else
-            resultStep2.dataValid <= false;
         end if;--readInput   
-        
+        resultStep2.dataValid <= resultStep1.dataValid;
     end if;--clk
 end process C1MultStep;
 
+
+
+StepA_EndianSwapProcess: process(clk, resultStep1)  
+
+    begin   
+    if rising_edge(clk) then
+        if(resultStep1.dataValid) then  
+            case resultStep1.dataLength is
+                when "00"   => resultStepA.data <= x"00"&x"00"&x"00"&resultStep1.data(7 downto 0);
+                when "01"   => resultStepA.data <= x"00"&x"00"&resultStep1.data(15 downto 0);
+                when "10"   => resultStepA.data <= x"00"&resultStep1.data(23 downto 0);
+                when others => resultStepA.data <= resultStep1.data;                
+            end case;
+            resultStepA.dataLength <= resultStep1.dataLength;
+            resultStepA.isFirst <= resultStep1.isFirst;
+            resultStepA.isLast <= resultStep1.isLast;
+            resultStepA.operationID <= resultStep1.operationID;
+            resultStepA.seed <= resultStep1.seed;
+        end if;
+        resultStepA.dataValid <= resultStep1.dataValid;
+    end if;--clk
+end process StepA_EndianSwapProcess;
+
+
+StepB_C1Mult: process(clk, resultStepA)  
+    variable c1MutlResult : std_logic_vector(63 downto 0); 
+    begin   
+    c1MutlResult := (resultStepA.data*C1); 
+    if rising_edge(clk) then
+        if(resultStepA.dataValid) then   
+            resultStepB.data <= c1MutlResult(31 downto 0);
+            resultStepB.dataLength <= resultStepA.dataLength;
+            resultStepB.isFirst <= resultStepA.isFirst;
+            resultStepB.isLast <= resultStepA.isLast;
+            resultStepB.operationID <= resultStepA.operationID;
+            resultStepB.seed <= resultStepA.seed;
+        end if;--readInput   
+        resultStepB.dataValid <= resultStepA.dataValid;
+    end if;--clk
+end process StepB_C1Mult;
+
+StepC_R1Rotation: process(clk, resultStepB)  
+    begin    
+    if rising_edge(clk) then        
+        if(resultStepB.dataValid) then
+            resultStepC.data(31 downto 15)                <= resultStepB.data(16 downto 0);
+            resultStepC.data(14 downto 0)                 <= resultStepB.data(31 downto 17);
+            resultStepC.dataLength          <= resultStepB.dataLength;
+            resultStepC.isFirst             <= resultStepB.isFirst;
+            resultStepC.isLast              <= resultStepB.isLast;
+            resultStepC.operationID         <= resultStepB.operationID;
+            resultStepC.seed                <= resultStepB.seed;        
+        end if;--readInput   
+        resultStepC.dataValid           <= resultStepB.dataValid;
+    end if;--clk
+end process StepC_R1Rotation;
+
+StepD_C2Mult: process(clk, resultStepC)  
+    variable c2MutlResult : std_logic_vector(63 downto 0); 
+    begin
+    c2MutlResult := (resultStepC.data*C2);     
+    if rising_edge(clk) then        
+        if(resultStepC.dataValid) then                        
+            resultStepD.data            <= c2MutlResult(31 downto 0);
+            resultStepD.dataLength      <= resultStepC.dataLength;
+            resultStepD.isFirst         <= resultStepC.isFirst;
+            resultStepD.isLast          <= resultStepC.isLast;
+            resultStepD.operationID     <= resultStepC.operationID;
+            resultStepD.seed            <= resultStepC.seed;        
+        end if;--readInput   
+        resultStepD.dataValid       <= resultStepC.dataValid;
+    end if;--clk
+end process StepD_C2Mult;
+
+
 R1Step: process(clk, resultStep2)  
     begin    
-    if rising_edge(clk) then
-        
+    if rising_edge(clk) then        
         if(resultStep2.dataValid) then
-            
-            resultStep3.dataValid           <= true;
             resultStep3.data(31 downto 15)                <= resultStep2.data(16 downto 0);
             resultStep3.data(14 downto 0)                 <= resultStep2.data(31 downto 17);
             resultStep3.dataLength          <= resultStep2.dataLength;
             resultStep3.isFirst             <= resultStep2.isFirst;
             resultStep3.isLast              <= resultStep2.isLast;
             resultStep3.operationID         <= resultStep2.operationID;
-            resultStep3.seed                <= resultStep2.seed;
-        else
-            resultStep3.dataValid           <= false;
+            resultStep3.seed                <= resultStep2.seed;        
         end if;--readInput   
-        
+        resultStep3.dataValid           <= resultStep2.dataValid;
     end if;--clk
 end process R1Step;
 
 
 C2MultStep: process(clk, resultStep3)  
     variable c2MutlResult : std_logic_vector(63 downto 0); 
-    begin    
-    if rising_edge(clk) then
-        
-        if(resultStep3.dataValid) then
-            c2MutlResult := (resultStep3.data*C2); 
-            resultStep4.dataValid       <= true;
+    begin
+    c2MutlResult := (resultStep3.data*C2);     
+    if rising_edge(clk) then        
+        if(resultStep3.dataValid) then                        
             resultStep4.data            <= c2MutlResult(31 downto 0);
             resultStep4.dataLength      <= resultStep3.dataLength;
             resultStep4.isFirst         <= resultStep3.isFirst;
             resultStep4.isLast          <= resultStep3.isLast;
             resultStep4.operationID     <= resultStep3.operationID;
-            resultStep4.seed            <= resultStep3.seed;
-        else           
-            resultStep4.dataValid <= false;
+            resultStep4.seed            <= resultStep3.seed;        
         end if;--readInput   
-        
+        resultStep4.dataValid       <= resultStep3.dataValid;
     end if;--clk
 end process C2MultStep;
 
@@ -217,9 +307,18 @@ begin
     if rising_edge(clk) then
         if(resultStep4.dataValid) then            
             if(resultStep4.isFirst)then
-                resultStep5.hash <= funcionFinalHashOperation_4B(resultStep4.seed, resultStep4.data);
+                if (resultStep4.dataLength="11") then-- bytes de longitud alineada de 4 bytes
+                    resultStep5.hash <= funcionFinalHashOperation_4B(resultStep4.seed, resultStep4.data);
+                else
+                    resultStep5.hash <= resultStepD.seed xor resultStepD.data;
+                end if;                
             else
-                resultStep5.hash <= funcionFinalHashOperation_4B(resultStep5.hash, resultStep4.data);
+                if (resultStep4.dataLength="11") then-- bytes de longitud alineada de 4 bytes
+                    resultStep5.hash <= funcionFinalHashOperation_4B(resultStep5.hash, resultStep4.data);
+                else
+                    resultStep5.hash <= resultStep5.hash xor resultStepD.data;
+                end if; 
+                --resultStep5.hash <= funcionFinalHashOperation_4B(resultStep5.hash, resultStep4.data);
             end if;
             resultStep5.operationID <= resultStep4.operationID;
             resultStep5.resultReady <= true;
