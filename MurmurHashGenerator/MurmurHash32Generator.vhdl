@@ -114,6 +114,11 @@ architecture Estructural of MurmurHash32Generator is
     signal finalStep6   : FinalStep;
     signal lengthCounter: unsigned(31 downto 0);    
     
+    signal stepAdata        : std_logic_vector(31 downto 0);
+    signal CompletedDataA   : std_logic_vector(31 downto 0);
+    signal CompletedDataB   : std_logic_vector(31 downto 0);
+    signal CompletedDataC   : std_logic_vector(31 downto 0);
+    signal dataBeatValidQ : boolean;	
     --signal K : std_logic_vector(31 downto 0);
     --signal Hash : std_logic_vector(31 downto 0);
     
@@ -127,9 +132,12 @@ dataStep5_dbg <= resultStep5.hash;
 
 dataStepA_dbg <= resultStepA.data;
 dataStepA_ID_dbg <= resultStepA.operationID;
-
 dataStepB_dbg <= resultStepB.data;
 dataStepB_ID_dbg <= resultStepB.operationID;
+dataStepC_dbg <= resultStepC.data;
+dataStepC_ID_dbg <= resultStepC.operationID;
+dataStepD_dbg <= resultStepD.data;
+dataStepD_ID_dbg <= resultStepD.operationID;
 
 dataStep1_ID_dbg <= resultStep1.operationID;
 dataStep2_ID_dbg <= resultStep2.operationID;
@@ -137,7 +145,6 @@ dataStep3_ID_dbg <= resultStep3.operationID;
 dataStep4_ID_dbg <= resultStep4.operationID;
 dataStep5_ID_dbg <= resultStep5.operationID;
 
-dataStepA_ID_dbg <= resultStepA.operationID;
 
 finalStep1_dbg <= finalStep1.hash;
 finalStep2_dbg <= finalStep2.hash;
@@ -152,36 +159,35 @@ finalStep5_ID_dbg <= finalStep5.operationID;
 
 canAccept <= '1';-- Siemrpe se debe poder recibir datos en este core
 
-
-
 --Definiendo la captura de datos
 CaptureStep: process(clk, inputBlock, readInput, blockLength, finalBlock, start, operationID, seed)  begin
     if rising_edge(clk) then
         if(readInput = '1') then
-            resultStep1.dataValid <= true;
+            
             resultStep1.data <= (inputBlock);
             resultStep1.dataLength <= blockLength;
             resultStep1.isFirst <= (start='1');
-            resultStep1.isLast <= (finalBlock='1');
-            
+            resultStep1.isLast <= (finalBlock='1');            
             if (start='1') then
                 resultStep1.operationID <= operationID;    
             end if;
             resultStep1.seed <= seed;
-        else
-            resultStep1.dataValid <= false;
+       
         end if;--readInput
+        resultStep1.dataValid <= (readInput='1');
     end if;--clk
     
 end process CaptureStep;
 
 
 C1MultStep: process(clk, resultStep1)  
-    variable c1MutlResult : std_logic_vector(63 downto 0); 
+    variable c1MutlResult : std_logic_vector(63 downto 0);
+    variable dataBeatValidQ : boolean; 
     begin   
     c1MutlResult := (resultStep1.data*C1); 
+    dataBeatValidQ := resultStep1.dataValid and (resultStep1.dataLength="11");
     if rising_edge(clk) then
-        if(resultStep1.dataValid) then   
+        if(dataBeatValidQ) then   
             resultStep2.data <= c1MutlResult(31 downto 0);
             resultStep2.dataLength <= resultStep1.dataLength;
             resultStep2.isFirst <= resultStep1.isFirst;
@@ -189,33 +195,49 @@ C1MultStep: process(clk, resultStep1)
             resultStep2.operationID <= resultStep1.operationID;
             resultStep2.seed <= resultStep1.seed;
         end if;--readInput   
-        resultStep2.dataValid <= resultStep1.dataValid;
+        resultStep2.dataValid <= dataBeatValidQ;
     end if;--clk
 end process C1MultStep;
 
 
-
-StepA_EndianSwapProcess: process(clk, resultStep1)  
-
-    begin   
-    if rising_edge(clk) then
-        if(resultStep1.dataValid) then  
-            case resultStep1.dataLength is
-                when "00"   => resultStepA.data <= x"00"&x"00"&x"00"&resultStep1.data(7 downto 0);
-                when "01"   => resultStepA.data <= x"00"&x"00"&resultStep1.data(15 downto 0);
-                when "10"   => resultStepA.data <= x"00"&resultStep1.data(23 downto 0);
-                when others => resultStepA.data <= resultStep1.data;                
-            end case;
+CompletedDataA <= x"00"&x"00"&x"00"&resultStep1.data(7 downto 0);
+CompletedDataB <= x"00"&x"00"&resultStep1.data(15 downto 0);
+CompletedDataC <= x"00"&resultStep1.data(23 downto 0);
+with resultStep1.dataLength select
+    			 stepAdata <=         CompletedDataA     when "00",
+    								  CompletedDataB     when "01",
+    								  CompletedDataC     when "10",
+    								  (others => '-')    when others;
+dataBeatValidQ	<= (resultStep1.dataValid) and (resultStep1.dataLength/="11");						  
+StepA_EndianSwapProcess: process(clk, resultStep1, stepAdata, dataBeatValidQ)  	
+begin  
+--	   if (resultStep1.dataLength="00") then
+--		  stepAdata := CompletedDataA;
+--	   elsif (resultStep1.dataLength="01") then
+--		  stepAdata := CompletedDataB;
+--	   elsif (resultStep1.dataLength="10") then
+--		  stepAdata := CompletedDataC;
+--	   else
+--		  stepAdata := (others => '-');
+--	   end if; 
+--	   case resultStep1.dataLength is
+--	       when "00"   => stepAdata := CompletedDataA;
+--		   when "01"   => stepAdata := CompletedDataB;
+--		   when "10"   => stepAdata := CompletedDataC;               
+--		   when others => stepAdata := (others => '-');                
+--	   end case;
+       if rising_edge(clk) then        
+         if(dataBeatValidQ) then        	
+            resultStepA.data <= stepAdata;
             resultStepA.dataLength <= resultStep1.dataLength;
             resultStepA.isFirst <= resultStep1.isFirst;
             resultStepA.isLast <= resultStep1.isLast;
             resultStepA.operationID <= resultStep1.operationID;
             resultStepA.seed <= resultStep1.seed;
-        end if;
-        resultStepA.dataValid <= resultStep1.dataValid;
-    end if;--clk
+         end if;
+         resultStepA.dataValid <= dataBeatValidQ;
+       end if;--clk
 end process StepA_EndianSwapProcess;
-
 
 StepB_C1Mult: process(clk, resultStepA)  
     variable c1MutlResult : std_logic_vector(63 downto 0); 
@@ -302,32 +324,56 @@ C2MultStep: process(clk, resultStep3)
     end if;--clk
 end process C2MultStep;
 
-UpdateHashStep: process(clk, resultStep4)  
+UpdateHashStep: process(clk, resultStep4, resultStep5, resultStepD)  
+variable dataAvailable : boolean;
+variable selectOrigin: std_logic_vector( 1 downto 0 );
+variable newHash: std_logic_vector( 31 downto 0 );
 begin
     if rising_edge(clk) then
-        if(resultStep4.dataValid) then            
-            if(resultStep4.isFirst)then
-                if (resultStep4.dataLength="11") then-- bytes de longitud alineada de 4 bytes
-                    resultStep5.hash <= funcionFinalHashOperation_4B(resultStep4.seed, resultStep4.data);
+		  dataAvailable := resultStep4.dataValid or resultStepD.dataValid;
+		  selectOrigin := mh3_boolean_to_std_logic(resultStep4.dataValid) & mh3_boolean_to_std_logic(resultStepD.dataValid);
+          if(dataAvailable) then          
+              case selectOrigin is
+              when "01" => 
+                if(resultStepD.isFirst)then
+--                  if (resultStepD.dataLength="11") then-- bytes de longitud alineada de 4 bytes
+--                      resultStep5.hash <= funcionFinalHashOperation_4B(resultStep4.seed, resultStep4.data);
+--                  else
+                      newHash := resultStepD.seed xor resultStepD.data;
+--                  end if;
                 else
-                    resultStep5.hash <= resultStepD.seed xor resultStepD.data;
-                end if;                
-            else
-                if (resultStep4.dataLength="11") then-- bytes de longitud alineada de 4 bytes
-                    resultStep5.hash <= funcionFinalHashOperation_4B(resultStep5.hash, resultStep4.data);
-                else
-                    resultStep5.hash <= resultStep5.hash xor resultStepD.data;
-                end if; 
-                --resultStep5.hash <= funcionFinalHashOperation_4B(resultStep5.hash, resultStep4.data);
-            end if;
+                      newHash := resultStep5.hash xor resultStepD.data;
+                end if;
+              when "10" =>
+                  if(resultStep4.isFirst)then
+                        newHash :=funcionFinalHashOperation_4B(resultStep4.seed, resultStep4.data);
+                  else
+                        newHash := funcionFinalHashOperation_4B(resultStep5.hash, resultStep4.data);
+                  end if;
+              when others =>
+                  newHash := resultStep5.hash;
+              end case;
+--            if(resultStep4.isFirst)then
+--                if (resultStep4.dataLength="11") then-- bytes de longitud alineada de 4 bytes
+--                    resultStep5.hash <= funcionFinalHashOperation_4B(resultStep4.seed, resultStep4.data);
+--                else
+--                    resultStep5.hash <= resultStepD.seed xor resultStepD.data;
+--                end if;                
+--            else
+--                if (resultStep4.dataLength="11") then-- bytes de longitud alineada de 4 bytes
+--                    resultStep5.hash <= funcionFinalHashOperation_4B(resultStep5.hash, resultStep4.data);
+--                else
+--                    resultStep5.hash <= resultStep5.hash xor resultStepD.data;
+--                end if; 
+--                --resultStep5.hash <= funcionFinalHashOperation_4B(resultStep5.hash, resultStep4.data);
+--            end if;
+            resultStep5.hash <= newHash;
             resultStep5.operationID <= resultStep4.operationID;
-            resultStep5.resultReady <= true;
             resultStep5.isFirst <= (resultStep4.isFirst);
             resultStep5.isLast <= (resultStep4.isLast);
             resultStep5.dataLength      <= resultStep4.dataLength;
-        else
-            resultStep5.resultReady <= false;
         end if;--readInput  
+		  resultStep5.resultReady <= dataAvailable;
     end if;--clk
 end process UpdateHashStep;
 
@@ -393,10 +439,6 @@ begin
     end if;--clk
 end process FinalProc_Step2;
 
-
-
-
-
 FinalProc_Step3: process(clk, finalStep2) 
 variable fullMultResult : std_logic_vector( 63 downto 0); 
 begin
@@ -412,10 +454,6 @@ begin
         finalStep3.resultReady <= finalStep2.resultReady;
     end if;--clk
 end process FinalProc_Step3;
-
-
-
-
 
 FinalProc_Step4: process(clk, finalStep3) 
 begin

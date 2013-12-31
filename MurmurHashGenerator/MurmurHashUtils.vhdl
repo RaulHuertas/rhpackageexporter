@@ -206,7 +206,17 @@ component MurmurHash32Generator is
             dataStep2_ID_dbg : out std_logic_vector(31 downto 0);
             dataStep3_ID_dbg : out std_logic_vector(31 downto 0);
             dataStep4_ID_dbg : out std_logic_vector(31 downto 0);
-            dataStep5_ID_dbg : out std_logic_vector(31 downto 0);        
+            dataStep5_ID_dbg : out std_logic_vector(31 downto 0);
+            
+            dataStepA_dbg : out std_logic_vector(31 downto 0);
+            dataStepA_ID_dbg : out std_logic_vector(31 downto 0);
+            dataStepB_dbg : out std_logic_vector(31 downto 0);
+            dataStepB_ID_dbg : out std_logic_vector(31 downto 0);
+            dataStepC_dbg : out std_logic_vector(31 downto 0);
+            dataStepC_ID_dbg : out std_logic_vector(31 downto 0);
+            dataStepD_dbg : out std_logic_vector(31 downto 0);
+            dataStepD_ID_dbg : out std_logic_vector(31 downto 0);
+                        
             finalStep1_dbg : out std_logic_vector(31 downto 0);
             finalStep2_dbg : out std_logic_vector(31 downto 0);
             finalStep3_dbg : out std_logic_vector(31 downto 0);

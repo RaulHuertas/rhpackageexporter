@@ -67,6 +67,15 @@ architecture Behavioral of TB3_No4ByteAligned is
     signal dataStep4_ID_dbg : std_logic_vector(31 downto 0);
     signal dataStep5_ID_dbg : std_logic_vector(31 downto 0);
 
+    signal dataStepA_dbg    : std_logic_vector(31 downto 0);
+    signal dataStepA_ID_dbg : std_logic_vector(31 downto 0);
+    signal dataStepB_dbg    : std_logic_vector(31 downto 0);
+    signal dataStepB_ID_dbg : std_logic_vector(31 downto 0);
+    signal dataStepC_dbg    : std_logic_vector(31 downto 0);
+    signal dataStepC_ID_dbg : std_logic_vector(31 downto 0);
+    signal dataStepD_dbg    : std_logic_vector(31 downto 0);
+    signal dataStepD_ID_dbg : std_logic_vector(31 downto 0);
+
     signal finalStep1_dbg : std_logic_vector(31 downto 0);
     signal finalStep2_dbg : std_logic_vector(31 downto 0);
     signal finalStep3_dbg : std_logic_vector(31 downto 0);
@@ -97,7 +106,8 @@ begin
     verification: process (clk, resultReady, result, resultsBankCounter)             
     begin
         if( rising_edge(clk) ) then
-            if( resultsBankCounter = resultReference'length ) then
+            --if( resultsBankCounter = resultReference'length ) then
+            if( resultsBankCounter = 1 ) then
                         errorDetected <= '0';
             else
                 if (resultReady = '1') then
@@ -143,6 +153,16 @@ begin
           dataStep3_ID_dbg => dataStep3_ID_dbg,
           dataStep4_ID_dbg => dataStep4_ID_dbg,
           dataStep5_ID_dbg => dataStep5_ID_dbg,
+          
+          dataStepA_dbg => dataStepA_dbg,
+          dataStepA_ID_dbg => dataStepA_ID_dbg,
+          dataStepB_dbg => dataStepA_dbg,
+          dataStepB_ID_dbg => dataStepA_ID_dbg,
+          dataStepC_dbg => dataStepA_dbg,
+          dataStepC_ID_dbg => dataStepA_ID_dbg,   
+          dataStepD_dbg => dataStepA_dbg,
+          dataStepD_ID_dbg => dataStepA_ID_dbg,   
+                    
           finalStep1_dbg => finalStep1_dbg,
           finalStep2_dbg => finalStep2_dbg,
           finalStep3_dbg => finalStep3_dbg,
@@ -190,68 +210,68 @@ stim_proc: process
           start <= '0';--que ya no lea otro dato
           readInput <= '0';
           wait for clk_period;
-          --Prueba 2 hash del vector 1
-          blockLength <= "11";
-          inputBlock  <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0001";
-          operationID <= opsIDs(1);
-          finalBlock <= '1';
-          seed <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
-          start <= '1';     
-          readInput <= '0';
-          wait for clk_period;
-          --hacer que realize una lectura de datos
-          readInput <= '1';          
-          wait for clk_period;          
-          start <= '0';--que ya no lea otro dato
-          readInput <= '0';
-          wait for clk_period;
-          wait for clk_period;
-          --PROBAR QUE AMBAS SALIDAS CONSECUTIVAS SE REALIZEN DE FORMA CONSECUTIVA          
-           start <= '1';    
-           finalBlock <= '1';
-           readInput <= '1';
-           seed <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
-           --Probando valroes consecutivos
-           inputBlock  <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
-           operationID <= opsIDs(2);
-           wait for clk_period;
-           inputBlock  <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0001";
-           operationID <= opsIDs(3);
-           wait for clk_period;
-           inputBlock  <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0010";
-           operationID <= opsIDs(4);
-           wait for clk_period;
-           inputBlock  <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0011";
-           operationID <= opsIDs(5);
-           wait for clk_period;
-           readInput <= '0';
-           wait for clk_period;
-           readInput <= '1';
-           inputBlock  <= "1000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
-           operationID <= opsIDs(6);
-           wait for clk_period;
-           inputBlock  <= "0100"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
-           operationID <= opsIDs(7);
-           wait for clk_period;
-           inputBlock  <= "1100"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
-           operationID <= opsIDs(8);
-           wait for clk_period;
-           inputBlock  <= "0010"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
-           operationID <= opsIDs(9);
-           wait for clk_period;           
+--          --Prueba 2 hash del vector 1
+--          blockLength <= "11";
+--          inputBlock  <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0001";
+--          operationID <= opsIDs(1);
+--          finalBlock <= '1';
+--          seed <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
+--          start <= '1';     
+--          readInput <= '0';
+--          wait for clk_period;
+--          --hacer que realize una lectura de datos
+--          readInput <= '1';          
+--          wait for clk_period;          
+--          start <= '0';--que ya no lea otro dato
+--          readInput <= '0';
+--          wait for clk_period;
+--          wait for clk_period;
+--          --PROBAR QUE AMBAS SALIDAS CONSECUTIVAS SE REALIZEN DE FORMA CONSECUTIVA          
+--           start <= '1';    
+--           finalBlock <= '1';
+--           readInput <= '1';
+--           seed <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
+--           --Probando valroes consecutivos
+--           inputBlock  <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
+--           operationID <= opsIDs(2);
+--           wait for clk_period;
+--           inputBlock  <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0001";
+--           operationID <= opsIDs(3);
+--           wait for clk_period;
+--           inputBlock  <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0010";
+--           operationID <= opsIDs(4);
+--           wait for clk_period;
+--           inputBlock  <= "0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0011";
+--           operationID <= opsIDs(5);
+--           wait for clk_period;
+--           readInput <= '0';
+--           wait for clk_period;
+--           readInput <= '1';
+--           inputBlock  <= "1000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
+--           operationID <= opsIDs(6);
+--           wait for clk_period;
+--           inputBlock  <= "0100"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
+--           operationID <= opsIDs(7);
+--           wait for clk_period;
+--           inputBlock  <= "1100"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
+--           operationID <= opsIDs(8);
+--           wait for clk_period;
+--           inputBlock  <= "0010"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000"&"0000";
+--           operationID <= opsIDs(9);
+--           wait for clk_period;           
            
-           inputBlock  <= "1111"&"1111"&"1111"&"1111"&"1111"&"1111"&"1111"&"1111";
-           operationID <= opsIDs(10);
-           wait for clk_period;
-           inputBlock  <= "1111"&"0000"&"1111"&"0000"&"1111"&"0000"&"1111"&"0000";
-           operationID <= opsIDs(11);
-           wait for clk_period;
-           inputBlock  <= "0000"&"1111"&"0000"&"1111"&"0000"&"1111"&"0000"&"1111";
-           operationID <= opsIDs(12);
-           wait for clk_period;
-           inputBlock  <= "1100"&"1100"&"1100"&"1100"&"1100"&"1100"&"1100"&"1100";
-           operationID <= opsIDs(13);
-           wait for clk_period;           
+--           inputBlock  <= "1111"&"1111"&"1111"&"1111"&"1111"&"1111"&"1111"&"1111";
+--           operationID <= opsIDs(10);
+--           wait for clk_period;
+--           inputBlock  <= "1111"&"0000"&"1111"&"0000"&"1111"&"0000"&"1111"&"0000";
+--           operationID <= opsIDs(11);
+--           wait for clk_period;
+--           inputBlock  <= "0000"&"1111"&"0000"&"1111"&"0000"&"1111"&"0000"&"1111";
+--           operationID <= opsIDs(12);
+--           wait for clk_period;
+--           inputBlock  <= "1100"&"1100"&"1100"&"1100"&"1100"&"1100"&"1100"&"1100";
+--           operationID <= opsIDs(13);
+--           wait for clk_period;           
            
            
            
