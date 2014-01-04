@@ -67,12 +67,13 @@ entity MurmurHash32Generator is
       	dataStep5_ID_dbg : out std_logic_vector(31 downto 0);
       	
       	dataStepA_dbg : out std_logic_vector(31 downto 0);
-      	dataStepA_ID_dbg : out std_logic_vector(31 downto 0);
-        dataStepB_dbg : out std_logic_vector(31 downto 0);
-        dataStepB_ID_dbg : out std_logic_vector(31 downto 0);
+      	dataStepB_dbg : out std_logic_vector(31 downto 0);
         dataStepC_dbg : out std_logic_vector(31 downto 0);
-        dataStepC_ID_dbg : out std_logic_vector(31 downto 0);
         dataStepD_dbg : out std_logic_vector(31 downto 0);
+        
+        dataStepA_ID_dbg : out std_logic_vector(31 downto 0);
+        dataStepB_ID_dbg : out std_logic_vector(31 downto 0);        
+        dataStepC_ID_dbg : out std_logic_vector(31 downto 0);        
         dataStepD_ID_dbg : out std_logic_vector(31 downto 0);
       	        
         finalStep1_dbg : out std_logic_vector(31 downto 0);
@@ -336,42 +337,32 @@ begin
               case selectOrigin is
               when "01" => 
                 if(resultStepD.isFirst)then
---                  if (resultStepD.dataLength="11") then-- bytes de longitud alineada de 4 bytes
---                      resultStep5.hash <= funcionFinalHashOperation_4B(resultStep4.seed, resultStep4.data);
---                  else
                       newHash := resultStepD.seed xor resultStepD.data;
---                  end if;
                 else
                       newHash := resultStep5.hash xor resultStepD.data;
                 end if;
+					 
+					 resultStep5.operationID <= resultStepD.operationID;
+					 resultStep5.isFirst <= (resultStepD.isFirst);
+					 resultStep5.isLast <= (resultStepD.isLast);
+					 resultStep5.dataLength      <= resultStepD.dataLength;
+					 
               when "10" =>
                   if(resultStep4.isFirst)then
                         newHash :=funcionFinalHashOperation_4B(resultStep4.seed, resultStep4.data);
                   else
                         newHash := funcionFinalHashOperation_4B(resultStep5.hash, resultStep4.data);
                   end if;
+						resultStep5.operationID <= resultStep4.operationID;
+					   resultStep5.isFirst <= (resultStep4.isFirst);
+					   resultStep5.isLast <= (resultStep4.isLast);
+					   resultStep5.dataLength      <= resultStep4.dataLength;
               when others =>
                   newHash := resultStep5.hash;
               end case;
---            if(resultStep4.isFirst)then
---                if (resultStep4.dataLength="11") then-- bytes de longitud alineada de 4 bytes
---                    resultStep5.hash <= funcionFinalHashOperation_4B(resultStep4.seed, resultStep4.data);
---                else
---                    resultStep5.hash <= resultStepD.seed xor resultStepD.data;
---                end if;                
---            else
---                if (resultStep4.dataLength="11") then-- bytes de longitud alineada de 4 bytes
---                    resultStep5.hash <= funcionFinalHashOperation_4B(resultStep5.hash, resultStep4.data);
---                else
---                    resultStep5.hash <= resultStep5.hash xor resultStepD.data;
---                end if; 
---                --resultStep5.hash <= funcionFinalHashOperation_4B(resultStep5.hash, resultStep4.data);
---            end if;
+
             resultStep5.hash <= newHash;
-            resultStep5.operationID <= resultStep4.operationID;
-            resultStep5.isFirst <= (resultStep4.isFirst);
-            resultStep5.isLast <= (resultStep4.isLast);
-            resultStep5.dataLength      <= resultStep4.dataLength;
+            
         end if;--readInput  
 		  resultStep5.resultReady <= dataAvailable;
     end if;--clk

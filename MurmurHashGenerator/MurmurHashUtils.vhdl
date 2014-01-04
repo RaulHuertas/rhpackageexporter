@@ -169,7 +169,11 @@ begin
     --return (data );
 end function xor_with_shiftRight;
 
-
+function char_to_slv8(inputByte: character) return std_logic_vector is
+begin    
+    return (std_logic_vector(to_unsigned(character'pos(inputByte), 8 )));
+    --return (data );
+end function char_to_slv8;
 
 
 --! En caso de recibir datos cuya lingitud no es multiplo de 4
@@ -209,12 +213,13 @@ component MurmurHash32Generator is
             dataStep5_ID_dbg : out std_logic_vector(31 downto 0);
             
             dataStepA_dbg : out std_logic_vector(31 downto 0);
-            dataStepA_ID_dbg : out std_logic_vector(31 downto 0);
             dataStepB_dbg : out std_logic_vector(31 downto 0);
-            dataStepB_ID_dbg : out std_logic_vector(31 downto 0);
             dataStepC_dbg : out std_logic_vector(31 downto 0);
-            dataStepC_ID_dbg : out std_logic_vector(31 downto 0);
             dataStepD_dbg : out std_logic_vector(31 downto 0);
+            
+            dataStepA_ID_dbg : out std_logic_vector(31 downto 0);
+            dataStepB_ID_dbg : out std_logic_vector(31 downto 0);
+            dataStepC_ID_dbg : out std_logic_vector(31 downto 0);
             dataStepD_ID_dbg : out std_logic_vector(31 downto 0);
                         
             finalStep1_dbg : out std_logic_vector(31 downto 0);

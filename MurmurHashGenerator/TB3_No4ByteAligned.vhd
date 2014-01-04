@@ -14,7 +14,7 @@
 -- 
 -- Revision:
 -- Revision 0.01 - File Created
--- Additional Comments:
+-- Additional Comments: Esta prueba solo realzia una unica prueba al modulo
 -- 
 ----------------------------------------------------------------------------------
 
@@ -155,13 +155,14 @@ begin
           dataStep5_ID_dbg => dataStep5_ID_dbg,
           
           dataStepA_dbg => dataStepA_dbg,
+          dataStepB_dbg => dataStepB_dbg,
+          dataStepC_dbg => dataStepC_dbg,
+          dataStepD_dbg => dataStepD_dbg,
+          
           dataStepA_ID_dbg => dataStepA_ID_dbg,
-          dataStepB_dbg => dataStepA_dbg,
-          dataStepB_ID_dbg => dataStepA_ID_dbg,
-          dataStepC_dbg => dataStepA_dbg,
-          dataStepC_ID_dbg => dataStepA_ID_dbg,   
-          dataStepD_dbg => dataStepA_dbg,
-          dataStepD_ID_dbg => dataStepA_ID_dbg,   
+          dataStepB_ID_dbg => dataStepB_ID_dbg,
+          dataStepC_ID_dbg => dataStepC_ID_dbg,   
+          dataStepD_ID_dbg => dataStepD_ID_dbg,   
                     
           finalStep1_dbg => finalStep1_dbg,
           finalStep2_dbg => finalStep2_dbg,
