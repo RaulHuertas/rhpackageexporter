@@ -8,6 +8,7 @@
 // non-native version will be less than optimal.
 
 #include "MurmurHash3.h"
+#include <iostream>
 using namespace std;
 //-----------------------------------------------------------------------------
 // Platform-specific functions and macros
@@ -73,6 +74,21 @@ FORCE_INLINE uint32_t fmix32 ( uint32_t h )
   h *= 0xc2b2ae35;
   h ^= h >> 16;
 
+  return h;
+}
+
+FORCE_INLINE uint32_t fmix32_verbose ( uint32_t h )
+{
+  h ^= h >> 16;
+  cout<<"    FinishStep2: "<<hex<<h<<endl;
+  h *= 0x85ebca6b;
+  cout<<"    FinishStep3: "<<hex<<h<<endl;
+  h ^= h >> 13;
+  cout<<"    FinishStep4: "<<hex<<h<<endl;
+  h *= 0xc2b2ae35;
+  cout<<"    FinishStep5: "<<hex<<h<<endl;
+  h ^= h >> 16;
+  cout<<"    FinishStep6: "<<hex<<h<<endl;
   return h;
 }
 
@@ -144,6 +160,75 @@ void MurmurHash3_x86_32 ( const void * key, int len,
 
   *(uint32_t*)out = h1;
 } 
+
+
+void MurmurHash3_x86_32_Verbose ( const void * key, int len,
+                          uint32_t seed, void * out )
+{
+  
+  const uint8_t * data = (const uint8_t*)key;
+  const int nblocks = len / 4;
+
+  uint32_t h1 = seed;
+
+  const uint32_t c1 = 0xcc9e2d51;
+  const uint32_t c2 = 0x1b873593;
+
+  //----------
+  // body
+
+  const uint32_t * blocks = (const uint32_t *)(data + nblocks*4);
+
+  int verboseStep = 1;
+  
+  for(int i = -nblocks; i; i++)
+  {
+    cout<<"Data Block "<<verboseStep<<endl;
+    uint32_t k1 = getblock32(blocks,i);
+    cout<<"    Step1: "<<hex<<k1<<endl;
+    
+    k1 *= c1;
+    cout<<"    Step2: "<<hex<<k1<<endl;
+    
+    k1 = ROTL32(k1,15);
+    cout<<"    Step3: "<<hex<<k1<<endl;
+    k1 *= c2;
+    cout<<"    Step4: "<<hex<<k1<<endl;
+    h1 ^= k1;
+    h1 = ROTL32(h1,13); 
+    h1 = h1*5+0xe6546b64;
+    cout<<"    Step5: "<<hex<<h1<<endl;
+    
+    verboseStep++;
+  }
+
+  //----------
+  // tail
+
+  const uint8_t * tail = (const uint8_t*)(data + nblocks*4);
+
+  uint32_t k1 = 0;
+
+  switch(len & 3)
+  {
+  case 3: k1 ^= tail[2] << 16;
+  case 2: k1 ^= tail[1] << 8;
+  case 1: k1 ^= tail[0];
+          cout<<"k1_u: "<<hex<<k1<<endl;k1 *= c1;cout<<"ua_C1: "<<hex<<k1<<endl; k1 = ROTL32(k1,15);cout<<"ua_rotr1: "<<hex<<k1<<endl; k1 *= c2;cout<<"ua_C2mult: "<<hex<<k1<<endl; h1 ^= k1;cout<<"ua_hashUpdate: "<<hex<<k1<<endl;
+  };
+
+  //----------
+  // finalization
+
+  h1 ^= len;
+  cout<<"    FinishStep1: "<<hex<<h1<<endl;
+  h1 = fmix32_verbose(h1);
+  *(uint32_t*)out = h1;
+  
+  
+} 
+
+
 
 //-----------------------------------------------------------------------------
 
@@ -249,6 +334,8 @@ void MurmurHash3_x86_128 ( const void * key, const int len,
   ((uint32_t*)out)[2] = h3;
   ((uint32_t*)out)[3] = h4;
 }
+
+
 
 //-----------------------------------------------------------------------------
 

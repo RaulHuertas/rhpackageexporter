@@ -18,6 +18,7 @@ public:
 	std::string server;
 	std::string host;
         std::string HashGenerationBenchMarkFile;
+        std::string HashGenerationBenchMarkFile_VHDL_Code_Array;
 	int URLLengthLimit;
 	int URLLimitDetected;
 	ExportOptions();

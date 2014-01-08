@@ -22,7 +22,7 @@ int analizeLine(char* line, ExportOptions& opts ){
 	}
 	char scanResult1[StringReadLimit];
 	//Ahora probar el resto de las reglas
-	while(1){//no es un bucle ;)
+	while(true){//no es un bucle ;)
 		if(std::sscanf(line, "Output %s", scanResult1)==1){
 			opts.output.clear(); 
 			opts.output.append(scanResult1);			
@@ -42,8 +42,17 @@ int analizeLine(char* line, ExportOptions& opts ){
                 if(std::sscanf(line, "HashGenerationBenchMarkFile %s", scanResult1)==1){
 			opts.HashGenerationBenchMarkFile.clear(); 
 			opts.HashGenerationBenchMarkFile.append(scanResult1);
+                        //cout<<"HashGenerationBenchMarkFile found: "<<opts.HashGenerationBenchMarkFile<<endl;
 			break;
 		}
+                
+                if(std::sscanf(line, "BenchMarkFile_VHDL %s", scanResult1)==1){
+			opts.HashGenerationBenchMarkFile_VHDL_Code_Array.clear(); 
+			opts.HashGenerationBenchMarkFile_VHDL_Code_Array.append(scanResult1);
+                        //cout<<"HashGenerationBenchMarkFileVCA found: "<<opts.HashGenerationBenchMarkFile_VHDL_Code_Array<<endl;
+			break;
+		}
+                
 		if(std::sscanf(line, "HomeFile %s", scanResult1)==1){
 			opts.homeFile.clear(); 
 			opts.homeFile.append(scanResult1);
