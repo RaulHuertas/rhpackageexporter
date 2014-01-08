@@ -52,8 +52,8 @@ begin
         variable testHashs : resultReference;
         variable testsLengths : resultReference;
         variable inputByte: character;    
-        --file dataFile : TestDataFiles;
-        --variable fstatus: FILE_OPEN_STATUS;        
+        file dataFile : file_t;
+        variable fstatus: FILE_OPEN_STATUS;        
     begin
         --file_open(fstatus, dataFile, "HashGenerationsTest.hgt", read_mode);
         read( dataFile,  inputByte);
@@ -73,7 +73,7 @@ begin
         
         
         
-        file_close(dataFile);
+        --file_close(dataFile);
         wait;-- Que no se repita de forma indefinida
     end process Test;
 
