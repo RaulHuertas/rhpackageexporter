@@ -18,19 +18,22 @@ package MurmurHashUtils is
 component BinarySearchBRAM is
     generic ( 
 		DATA_WIDTH: integer := 32; 
-		ADDR_WIDTH: integer := 12
+		ADDR_WIDTH: integer := 10
 	);
     port(
-        clk : in std_logic_vector;-- un solo reloj para ambos puertos de la BRAM
-        --Puerto de escritura en el cual se vana grabar los datos en la tabla
-        porta_wr   : in std_logic;
-        porta_addr : in std_logic_vector( (ADDR_WIDTH-1) downto 0);
-        porta_din  : in std_logic_vector( (DATA_WIDTH-1) downto 0);
-        --puerto de lectura, desde el cual se van a leer los 
-        --datos para la comparación
-        portb_rd   : in std_logic;
-        portb_addr : in std_logic_vector( (ADDR_WIDTH-1) downto 0);
-        portb_dout  : in std_logic_vector( (DATA_WIDTH-1) downto 0)
+    clk : in std_logic;-- un solo reloj para ambos puertos de la BRAM
+    --Puerto de escritura en el cual se vana grabar los datos en la tabla
+    porta_wr   : in std_logic;
+    porta_waddr : in std_logic_vector( (ADDR_WIDTH-1) downto 0);
+    porta_din  : in std_logic_vector( (DATA_WIDTH-1) downto 0);
+    porta_rd   : in std_logic;
+    porta_raddr : in std_logic_vector( (ADDR_WIDTH-1) downto 0);
+    porta_dout  : out std_logic_vector( (DATA_WIDTH-1) downto 0);
+    --puerto de lectura, desde el cual se van a leer los 0
+    --datos para la comparación
+    portb_rd   : in std_logic;
+    portb_addr : in std_logic_vector( (ADDR_WIDTH-1) downto 0);
+    portb_dout  : out std_logic_vector( (DATA_WIDTH-1) downto 0)
     );  
 end component BinarySearchBRAM;
 
