@@ -169,6 +169,16 @@ begin
     --return (data );
 end function xor_with_shiftRight;
 
+
+function MH_ShiftRight(data: std_logic_vector; constant count:integer) return std_logic_vector is
+variable shifted : std_logic_vector( (data'length-1) downto 0 );
+begin    
+    shifted((data'length-1-count) downto 0 ) := data((data'length-1) downto count);
+    shifted((data'length-1) downto (data'length-count) ) := ( others=>'0' );
+    return shifted;
+end function MH_ShiftRight;
+
+
 function char_to_slv8(inputByte: character) return std_logic_vector is
 begin    
     return (std_logic_vector(to_unsigned(character'pos(inputByte), 8 )));
@@ -234,6 +244,7 @@ component MurmurHash32Generator is
             finalStep5_ID_dbg : out std_logic_vector(31 downto 0)
 	);
 end component MurmurHash32Generator;
+
 
 constant simulationSeed : std_logic_vector(31 downto 0) := x"7538c68c";
 constant nTuplas : std_logic_vector(31 downto 0) := x"000000bd";

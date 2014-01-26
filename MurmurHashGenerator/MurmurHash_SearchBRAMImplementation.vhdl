@@ -6,6 +6,7 @@ use work.MurmurHashUtils.ALL;
 
 
 
+
 entity BinarySearchBRAM is 
  generic(
     DATA_WIDTH : integer := 32;
@@ -28,6 +29,8 @@ entity BinarySearchBRAM is
  );  
 end entity BinarySearchBRAM;
 
+
+
 architecture Inferral of BinarySearchBRAM is
 type mem_type is array ( (2**ADDR_WIDTH)-1 downto 0 ) of std_logic_vector(DATA_WIDTH-1 downto 0);
 shared variable mem : mem_type;
@@ -35,27 +38,27 @@ begin
 
 
 
-portA:process (clk, porta_wr, porta_waddr, porta_raddr, porta_din, porta_rd)
-begin
-    if rising_edge(clk) then
-        if ( porta_wr = '1' ) then
-            mem(conv_integer(porta_waddr)) := porta_din;
-        elsif ( porta_rd = '1' ) then
-            porta_dout <= mem(conv_integer(porta_raddr));
+    portA:process (clk, porta_wr, porta_waddr, porta_raddr, porta_din, porta_rd)
+    begin
+        if rising_edge(clk) then
+            if ( porta_wr = '1' ) then
+                mem(conv_integer(porta_waddr)) := porta_din;
+            elsif ( porta_rd = '1' ) then
+                porta_dout <= mem(conv_integer(porta_raddr));
+            end if;
         end if;
-    end if;
-end process portA;
-
-
-
-portB:process (clk, portb_rd, portb_addr)
-begin
-    if rising_edge(clk) then
-        if ( portb_rd = '1' ) then
-            portb_dout <= mem(conv_integer(portb_addr));
+    end process portA;
+    
+    
+    
+    portB:process (clk, portb_rd, portb_addr)
+    begin
+        if rising_edge(clk) then
+            if ( portb_rd = '1' ) then
+                portb_dout <= mem(conv_integer(portb_addr));
+            end if;
         end if;
-    end if;
-end process portB;
+    end process portB;
 
 
 
