@@ -10,7 +10,7 @@ entity BinarySearch_ComparingRow is
     generic ( 
 		DATA_WIDTH: integer := 32; 
 		ADDR_WIDTH: integer := 10;
-		RADIO: std_logic_vector(3 downto 0) := ( others => '1' )
+		RADIO: std_logic_vector
 	);
     port(
         clk : in std_logic;-- un solo reloj para ambos puertos de la BRAM        
@@ -19,32 +19,23 @@ entity BinarySearch_ComparingRow is
         previousIndex : in std_logic_vector( (ADDR_WIDTH-1) downto 0);        
         compare : in std_logic;--El dato actual se debe comparar   
         previousResult : in std_logic;--El resultado es encontrado'1' o no
-        --Señales del bloque de memoria interno dodne se almacenan los datos a grabar
         porta_wr   : in std_logic;
         porta_waddr : in std_logic_vector( (ADDR_WIDTH-1) downto 0);
         porta_din  : in std_logic_vector( (DATA_WIDTH-1) downto 0);
         --valores de saldia de esta columna
         result : out std_logic;--El resultado es encontrado'1' o no
-        --compareResult : out std_logic;--El resultado es encontrado'1' o no
         nextIndex : out std_logic_vector( (ADDR_WIDTH-1) downto 0); 
         compareFinished : out std_logic--Resultado de una comparación listo
     );  
 end entity BinarySearch_ComparingRow;
 
 architecture Normal of BinarySearch_ComparingRow is
-    --constant totalLen : integer := 2**ADDR_WIDTH;
-    --constant radio_vector : std_logic_vector( (ADDR_WIDTH-1) downto 0) := conv_std_logic_vector(totalLen, ADDR_WIDTH);
---    constant totalLen : integer := 2**ADDR_WIDTH;
- --   constant totalLen_vector : std_logic_vector( (ADDR_WIDTH-1) downto 0) := conv_std_logic_vector(totalLen, ADDR_WIDTH);
---  constant searchRadio : std_logic_vector( (ADDR_WIDTH-1) downto 0) := (totalLen_vector, INDEX_DISPLACEMENT);
-    
-    --constant searchRadio : std_logic_vector( (ADDR_WIDTH-1) downto 0) :=   conv_std_logic_vector( 2**ADDR_WIDTH >> INDEX_DISPLACEMENT, ADDR_WIDTH );
-    --signal index : std_logic_vector( (ADDR_WIDTH-1) downto 0);
+
     signal actualValue          : std_logic_vector( (DATA_WIDTH-1) downto 0);
     
     signal porta_rd             : std_logic;
     signal porta_raddr          : std_logic_vector( (ADDR_WIDTH-1) downto 0);
-    --signal porta_dout  : std_logic_vector( (DATA_WIDTH-1) downto 0);
+
     signal portb_rd             : std_logic;
     signal portb_addr           : std_logic_vector( (ADDR_WIDTH-1) downto 0);
     signal portb_dout           : std_logic_vector( (DATA_WIDTH-1) downto 0);
@@ -77,7 +68,7 @@ portb_rd <= compare;
 valorLeido <= ieee.numeric_std.unsigned(portb_dout);
 valorAComparar <= ieee.numeric_std.unsigned(dataToCompare);
 --instanciar la memoria
-memory: work.MurmurHashUtils.BinarySearchBRAM
+memory: BinarySearchBRAM
 generic map( DATA_WIDTH => DATA_WIDTH, ADDR_WIDTH => ADDR_WIDTH ) 
 port map (
     clk => clk,

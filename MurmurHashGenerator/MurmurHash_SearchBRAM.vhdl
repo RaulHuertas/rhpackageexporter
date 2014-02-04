@@ -1,10 +1,3 @@
-----------------------------------------------------------------------------------
--- Author: Raul gerardo Huertas Paiva 
--- 
--- Description: Bloque de memoria a usar en el 
--- modulo que va a realizar la búsqueda binaria 
---
-----------------------------------------------------------------------------------
 
 
 
@@ -17,8 +10,8 @@ package MurmurHashUtils is
 
 component BinarySearchBRAM is
 generic(
-   DATA_WIDTH : integer := 32;
-   ADDR_WIDTH : integer := 10
+    DATA_WIDTH : integer := 32;
+    ADDR_WIDTH : integer := 10
 );
 port(
     clk : in std_logic;-- un solo reloj para ambos puertos de la BRAM
