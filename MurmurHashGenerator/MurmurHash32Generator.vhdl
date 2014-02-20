@@ -120,8 +120,12 @@ architecture Estructural of MurmurHash32Generator is
     signal CompletedDataB   : std_logic_vector(31 downto 0);
     signal CompletedDataC   : std_logic_vector(31 downto 0);
     signal dataBeatValidQ : boolean;	
-    --signal K : std_logic_vector(31 downto 0);
-    --signal Hash : std_logic_vector(31 downto 0);
+    --balancing FF
+    signal resultReady_temp  : std_logic;
+    signal result_temp       : std_logic_vector(31 downto 0);
+    signal resultID_temp     : std_logic_vector(ID_LENGTH downto 0);
+
+
     
 begin
 --Conectando las salidas de depuracion 
@@ -498,9 +502,21 @@ end process FinalProc_Step6;
 
 
 --Conectando las salidas a este ultimo paso
-resultReady <= mh3_boolean_to_std_logic(finalStep6.resultReady);
-result <= finalStep6.hash; 
-resultID <= finalStep6.operationID;
+resultReady_temp <= mh3_boolean_to_std_logic(finalStep6.resultReady);
+result_temp <= finalStep6.hash; 
+resultID_temp <= finalStep6.operationID;
+
+FinalStage: process(clk, resultReady_temp, result_temp, resultID_temp)  begin
+    
+    if rising_edge(clk) then
+        resultReady            <= resultReady_temp;
+        result                 <= result_temp;
+        resultID               <= resultID_temp;
+    end if;--clk
+    
+end process FinalStage;
+
+
 
 
 end architecture Estructural;

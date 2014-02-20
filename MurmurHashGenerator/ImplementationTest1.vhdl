@@ -1,31 +1,3 @@
--- Murmur Hash Code Generator
--- Author: Raul Gerardo Huertas Paiva
-
---Copyright (c) 2014, Raul Huertas
---All rights reserved.
-----Redistribution and use in source and binary forms, with or without
-----modification, are permitted provided that the following conditions are met: 
-----
-----1. Redistributions of source code must retain the above copyright notice, this
---   list of conditions and the following disclaimer. 
---2. Redistributions in binary form must reproduce the above copyright notice,
---   this list of conditions and the following disclaimer in the documentation
---   and/or other materials provided with the distribution. 
---
---THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
---ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
---WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
---DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
---ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
---(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
---LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
---ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
---(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
---SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
---
---The views and conclusions contained in the software and documentation are those
---of the authors and should not be interpreted as representing official policies, 
---either expressed or implied, of the FreeBSD Project.
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -52,17 +24,17 @@ architecture structural of ImplementationTest1 is
     type registroEntradas is array (27 downto 0) of std_logic_vector(7 downto 0);
     signal registro : registroEntradas;
     signal resultID_output : std_logic_vector(31 downto 0);
-    signal dataStep1_dbg : std_logic_vector(31 downto 0);
-    signal dataStep2_dbg : std_logic_vector(31 downto 0);
-    signal dataStep3_dbg : std_logic_vector(31 downto 0);
-    signal dataStep4_dbg : std_logic_vector(31 downto 0);
-    signal dataStep5_dbg : std_logic_vector(31 downto 0);
+--    signal dataStep1_dbg : std_logic_vector(31 downto 0);
+--    signal dataStep2_dbg : std_logic_vector(31 downto 0);
+--    signal dataStep3_dbg : std_logic_vector(31 downto 0);
+--    signal dataStep4_dbg : std_logic_vector(31 downto 0);
+--    signal dataStep5_dbg : std_logic_vector(31 downto 0);
         
-    signal dataStep1_ID_dbg : std_logic_vector(31 downto 0);
-    signal dataStep2_ID_dbg : std_logic_vector(31 downto 0);
-    signal dataStep3_ID_dbg : std_logic_vector(31 downto 0);
-    signal dataStep4_ID_dbg : std_logic_vector(31 downto 0);
-    signal dataStep5_ID_dbg : std_logic_vector(31 downto 0);
+--    signal dataStep1_ID_dbg : std_logic_vector(31 downto 0);
+--    signal dataStep2_ID_dbg : std_logic_vector(31 downto 0);
+--    signal dataStep3_ID_dbg : std_logic_vector(31 downto 0);
+--    signal dataStep4_ID_dbg : std_logic_vector(31 downto 0);
+--    signal dataStep5_ID_dbg : std_logic_vector(31 downto 0);
     
 --    signal finalStep1_dbg : out std_logic_vector(31 downto 0);
 --    signal finalStep2_dbg : out std_logic_vector(31 downto 0);
@@ -119,24 +91,24 @@ begin
     blockLength     => registro(5)(1 downto 0), 
     finalBlock      => registro(6)(0),
     start           => registro(7)(0),
-    operationID     => operationID,
-    seed            => seed,
+    operationID     => (others => '-'),
+    seed            => (others => '-'),
     --salidas
     canAccept =>   canAccept_output,
     resultReady =>   resultReady_output,
-    result =>   result_output,
-    resultID =>   resultID_output,
+    result =>   open,
+    resultID =>   open,
     clk => clk,
-    dataStep1_dbg => dataStep1_dbg,
-    dataStep2_dbg => dataStep2_dbg,
-    dataStep3_dbg => dataStep3_dbg,
-    dataStep4_dbg => dataStep4_dbg,
-    dataStep5_dbg => dataStep5_dbg,
-    dataStep1_ID_dbg => dataStep1_ID_dbg,
-    dataStep2_ID_dbg => dataStep2_ID_dbg,
-    dataStep3_ID_dbg => dataStep3_ID_dbg,
-    dataStep4_ID_dbg => dataStep4_ID_dbg,
-    dataStep5_ID_dbg => dataStep5_ID_dbg,
+    dataStep1_dbg => open,
+    dataStep2_dbg => open,
+    dataStep3_dbg => open,
+    dataStep4_dbg => open,
+    dataStep5_dbg => open,
+    dataStep1_ID_dbg => open,
+    dataStep2_ID_dbg => open,
+    dataStep3_ID_dbg => open,
+    dataStep4_ID_dbg => open,
+    dataStep5_ID_dbg => open,
     
     finalStep1_dbg => open,
     finalStep2_dbg => open,

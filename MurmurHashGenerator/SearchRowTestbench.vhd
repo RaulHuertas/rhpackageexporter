@@ -1,23 +1,3 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 01.01.2014 14:32:21
--- Design Name: 
--- Module Name: TB4_FileBasedTest - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
--- 
-----------------------------------------------------------------------------------
-
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -25,14 +5,7 @@ use IEEE.std_logic_unsigned.ALL;
 use IEEE.numeric_std.all;
 use work.MurmurHashUtils.ALL;
 
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
 
--- Uncomment the following library declaration if instantiating
--- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
 
 entity SearchRowTestbench is
 end SearchRowTestbench;
@@ -60,18 +33,21 @@ architecture Behavioral of SearchRowTestbench is
     signal dataReadDuringIOTest  : std_logic_vector( (DATA_WIDTH_A_USAR-1) downto 0);
 
     constant clk_period : time := 10 ns;
+    constant radioTest    : std_logic_vector( (ADDR_WIDTH_A_USAR-1) downto 0):="0100000000"; 
                 
+                
+    signal valorLeido_dbg       : ieee.numeric_std.unsigned( (DATA_WIDTH_A_USAR-1) downto 0);           
 begin
    
    
-   uut : work.MurmurHashUtils.BinarySearch_ComparingRow
+   uut : entity work.BinarySearch_ComparingRow
     generic map ( 
 		DATA_WIDTH => DATA_WIDTH_A_USAR,
-		ADDR_WIDTH => ADDR_WIDTH_A_USAR,
-		RADIO => "1000000000"
+		ADDR_WIDTH => ADDR_WIDTH_A_USAR
 	)
     port map(
-        clk                 => clk,        
+        clk                 => clk,  
+        radio               => radioTest,
         dataToCompare       => dataToCompare,
         operationID         => operationID,
         previousIndex       => previousIndex,         
@@ -82,7 +58,8 @@ begin
         porta_din           => porta_din,  
         result              => result, 
         nextIndex           => nextIndex,  
-       compareFinished      =>  compareFinished
+       compareFinished      =>  compareFinished,
+       valorLeido_dbg       => valorLeido_dbg
     );  
 
    clk_process :process
@@ -103,6 +80,7 @@ begin
         porta_wr <= '0';
         porta_waddr     <=      addrToWrite;
         porta_din     <=      dataToWrite;
+        previousResult <= '0';
         wait for clk_period;
         porta_wr   <= '1';
         while readWriteCounter < (2**ADDR_WIDTH_A_USAR)  loop
@@ -114,6 +92,8 @@ begin
                 readWriteCounter := readWriteCounter+1;
         end loop;
         -- Ahora comparar un dato de prueba
+        porta_wr   <= '0';
+        wait for clk_period;
         dataToCompare <= x"00000001";
         operationID <= (others=>'1');
         previousIndex <= "1000000000";
@@ -123,6 +103,7 @@ begin
         compare<= '1';
         wait for clk_period;
         compare<= '0';
+        wait;
     end process;
     
     
