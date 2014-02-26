@@ -1,11 +1,18 @@
-----------------------------------------------------------------------------------
--- Engineer: Raul gerardo Huertas Paiva rax20037@gmail.com
--- 
--- Create Date: 09.02.2014 01:10:38
--- Module Name: SearchModule - Behavioral
--- 
-----------------------------------------------------------------------------------
 
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+package SearchModule_pkg is
+    constant DATA_WIDTH_A_USAR: integer := 32; 
+	constant ADDR_WIDTH_A_USAR: integer := 10;
+  	type arrayOfADDR_WIDTH is array (integer range <>) of std_logic_vector((ADDR_WIDTH_A_USAR-1) downto 0);
+  	type arrayOfDATA_WIDTH is array (integer range <>) of std_logic_vector((DATA_WIDTH_A_USAR-1) downto 0);
+  	type arrayUOfDATA_WIDTH is array (integer range <>) of ieee.numeric_std.unsigned( (DATA_WIDTH_A_USAR-1) downto 0)  ;
+  	  	
+end package;
+
+
+use work.SearchModule_pkg.ALL;
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -31,14 +38,16 @@ entity SearchModule is
         searchresult : out std_logic;--Si se ha encontrado o no. searchresult='1' indica que si se ha encontrado el elemento
         resultIndex : out std_logic_vector( (ADDR_WIDTH-1) downto 0);--Solo es valido si  searchresult='1'
         result_operationID : out std_logic_vector((DATA_WIDTH-1) downto 0);
+        
         --debug signals
-        internalResultFinished_dbg : out std_logic_vector( (ADDR_WIDTH-1) downto 0)
+        internalResultFinished_dbg  : out std_logic_vector( (ADDR_WIDTH-1) downto 0);
+        resultIndexs_dbg            : out arrayOfADDR_WIDTH((ADDR_WIDTH-1) downto 0);
+        dataFound_dbg               : out arrayUOfDATA_WIDTH((ADDR_WIDTH-1) downto 0)
+        
     );
 end SearchModule;
 
 architecture Behavioral of SearchModule is
-
-
 
 --entradas de los renglones de busqueda
 type arrayOfDATA_WIDTH is array ((ADDR_WIDTH-1) downto 0) of std_logic_vector((DATA_WIDTH-1) downto 0);
@@ -52,9 +61,10 @@ signal previousResult_iarray : std_logic_vector( (ADDR_WIDTH-1) downto 0);
 signal result_oarray : std_logic_vector( (ADDR_WIDTH-1) downto 0);
 signal nextIndex_oarray : arrayOfADDR_WIDTH;
 signal compareFinished_oarray : std_logic_vector( (ADDR_WIDTH-1) downto 0);
-constant  firstRadio : std_logic_vector( (ADDR_WIDTH-1) downto 0) := ( (ADDR_WIDTH-1) => '1', others => '0' );
+constant  firstRadio : std_logic_vector( (ADDR_WIDTH-1) downto 0) := ( (ADDR_WIDTH-2) => '1', others => '0' );
 constant  firstPreviousIndex : std_logic_vector( (ADDR_WIDTH-1) downto 0) := ( (ADDR_WIDTH-1) => '0', others => '1' );
 signal operationID_oarray   : arrayOfDATA_WIDTH;
+signal dataCompared_oarray   : arrayOfDATA_WIDTH;
 
 signal searchFinished_temp       : std_logic;--Resultado de una comparación listo
 signal searchresult_temp         : std_logic;--Si se ha encontrado o no. searchresult='1' indica que si se ha encontrado el elemento
@@ -83,20 +93,22 @@ generarFilasDeBusqueda: for i in 0 to (ADDR_WIDTH-1) generate
                 nextIndex           => nextIndex_oarray(i),  
                 compareFinished     => compareFinished_oarray(i),
                 result_operationID  => operationID_oarray(i),
-                valorLeido_dbg      => open
+                dataCompared        => dataCompared_oarray(i),
+                valorLeido_dbg      => dataFound_dbg(i)
         );
+        
     end generate firstRow;
 
-    otherRows: if i/=0 generate
+    intermediateRows: if ((i/=0) and (i/=(ADDR_WIDTH-1)) ) generate
         row: entity work.BinarySearch_ComparingRow
         generic map( DATA_WIDTH => DATA_WIDTH, ADDR_WIDTH => ADDR_WIDTH ) 
         port map(
                 clk                 => clk,  
-                radio               => ( (ADDR_WIDTH-1-i) => '1', others => '0' ),
-                dataToCompare       => dataToCompare,
-                operationID         => operationID,
+                radio               => ( (ADDR_WIDTH-2-i) => '1', others => '0' ),
+                dataToCompare       => dataCompared_oarray(i-1),
+                operationID         => operationID_oarray(i-1),
                 previousIndex       => nextIndex_oarray(i-1),         
-                compare             => compare,
+                compare             => compareFinished_oarray(i-1),
                 previousResult      => result_oarray(i-1), 
                 porta_wr            => porta_wr,
                 porta_waddr         => porta_waddr,
@@ -105,21 +117,47 @@ generarFilasDeBusqueda: for i in 0 to (ADDR_WIDTH-1) generate
                 nextIndex           => nextIndex_oarray(i),  
                 compareFinished     => compareFinished_oarray(i),
                 result_operationID  => operationID_oarray(i),
-                valorLeido_dbg      => open
-        );
-        
-        internalResultFinished_dbg(i) <= compareFinished_oarray(i);
-    end generate otherRows;
-  
+                dataCompared        => dataCompared_oarray(i),
+                valorLeido_dbg      => dataFound_dbg(i)
+        );                
+    end generate intermediateRows;
     
+    finalRow: if i=(ADDR_WIDTH-1) generate
+        row: entity work.BinarySearch_ComparingRow
+        generic map( DATA_WIDTH => DATA_WIDTH, ADDR_WIDTH => ADDR_WIDTH ) 
+        port map(
+                clk                 => clk,  
+                radio               => (  others => '0' ),
+                dataToCompare       => dataCompared_oarray(i-1),
+                operationID         => operationID_oarray(i-1),
+                previousIndex       => nextIndex_oarray(i-1),         
+                compare             => compareFinished_oarray(i-1),
+                previousResult      => result_oarray(i-1), 
+                porta_wr            => porta_wr,
+                porta_waddr         => porta_waddr,
+                porta_din           => porta_din,  
+                result              => result_oarray(i), 
+                nextIndex           => nextIndex_oarray(i),  
+                compareFinished     => compareFinished_oarray(i),
+                result_operationID  => operationID_oarray(i),
+                dataCompared        => dataCompared_oarray(i),
+                valorLeido_dbg      => dataFound_dbg(i)
+        );                
+    end generate finalRow;
+    
+    
+    resultIndexs_dbg(i) <= nextIndex_oarray(i);
     
 end generate generarFilasDeBusqueda;
 
+internalResultFinished_dbg <= compareFinished_oarray;
 
 searchFinished_temp      <= compareFinished_oarray(ADDR_WIDTH-1);
 searchresult_temp        <= result_oarray(ADDR_WIDTH-1);
 resultIndex_temp         <= nextIndex_oarray(ADDR_WIDTH-1);
 result_operationID_temp  <= operationID_oarray(ADDR_WIDTH-1);
+
+
 
 FinalStage: process(clk, searchFinished_temp, searchresult_temp, resultIndex_temp, result_operationID_temp)  begin
     

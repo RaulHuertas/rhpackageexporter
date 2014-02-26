@@ -27,10 +27,12 @@ entity BinarySearch_ComparingRow is
         --valores de saldia de esta columna
         result : out std_logic;--El resultado es encontrado'1' o no
         nextIndex : out std_logic_vector( (ADDR_WIDTH-1) downto 0); 
-        compareFinished : out std_logic;--Resultado de una comparación listo
+        compareFinished : out std_logic;--Resultado de una comparacion listo
         result_operationID : out std_logic_vector((DATA_WIDTH-1) downto 0);
+        dataCompared : out std_logic_vector((DATA_WIDTH-1) downto 0);
         --DEBUG SIGNALS
         valorLeido_dbg       : out ieee.numeric_std.unsigned( (DATA_WIDTH-1) downto 0)
+        
     );  
 end entity BinarySearch_ComparingRow;
 
@@ -47,7 +49,26 @@ architecture Normal of BinarySearch_ComparingRow is
     
     signal valorAComparar       : ieee.numeric_std.unsigned( (DATA_WIDTH-1) downto 0);
     signal compareResultTuple   : std_logic_vector(1 downto 0);--bit '1' indica mayor, bit '0' indica menor
-    signal valorLeido       : ieee.numeric_std.unsigned( (DATA_WIDTH-1) downto 0);
+    signal valorLeido           : ieee.numeric_std.unsigned( (DATA_WIDTH-1) downto 0);
+    
+    signal resultado            : std_logic;
+    
+    
+    signal result_temp                  : std_logic;
+    signal nextIndex_temp               : std_logic_vector( (ADDR_WIDTH-1) downto 0); 
+    signal compareFinished_temp         : std_logic;
+    signal result_operationID_temp      : std_logic_vector((DATA_WIDTH-1) downto 0);
+    signal dataCompared_temp            : std_logic_vector((DATA_WIDTH-1) downto 0);
+    signal valorLeido_dbg_temp          : ieee.numeric_std.unsigned( (DATA_WIDTH-1) downto 0);
+    signal dataToCompare_delayed                : std_logic_vector((DATA_WIDTH-1) downto 0);
+    signal previousResult_delayed                : std_logic;
+    signal previousIndex_delayed                : std_logic_vector( (ADDR_WIDTH-1) downto 0 );
+    
+    
+    
+    
+    
+    
     type memoryRead is record    
         operationID         : std_logic_vector((DATA_WIDTH-1) downto 0);
         compare             : boolean;
@@ -64,7 +85,7 @@ architecture Normal of BinarySearch_ComparingRow is
             
 begin
 
-valorLeido_dbg <= valorLeido;
+valorLeido_dbg_temp <= valorLeido;
 --puerto a es solo de escriitura 
 porta_rd <= '0';
 porta_raddr <= (others => '-');
@@ -72,8 +93,7 @@ porta_raddr <= (others => '-');
 
 portb_rd <= compare;
 portb_addr <= previousIndex;
-valorLeido <= ieee.numeric_std.unsigned(portb_dout);
-valorAComparar <= ieee.numeric_std.unsigned(dataToCompare);
+
 --instanciar la memoria
 memory: entity work.BinarySearchBRAM
 generic map( DATA_WIDTH => DATA_WIDTH, ADDR_WIDTH => ADDR_WIDTH ) 
@@ -90,43 +110,68 @@ port map (
     portb_dout => portb_dout
 );
 
+
 --GENERAR LOS VALORES CORRECTOS DE SALIDA
-result <= previousResult or boolean_to_std_logic(valorAComparar = valorLeido);
+delay_dataToCompare : process ( clk, compare, dataToCompare ) begin
+    if rising_edge(clk) then
+        if(compare = '1') then
+            dataToCompare_delayed           <=      dataToCompare;
+            previousResult_delayed          <=      previousResult;
+            previousIndex_delayed           <=      previousIndex;
+        end if;   
+    end if;
+end process delay_dataToCompare;
+
+valorLeido <= ieee.numeric_std.unsigned(portb_dout);
+valorAComparar <= ieee.numeric_std.unsigned(dataToCompare_delayed);
+
+resultado <= boolean_to_std_logic(valorAComparar = valorLeido);
+result_temp <= previousResult_delayed or resultado;
 compareResultTuple(1) <= boolean_to_std_logic(valorAComparar > valorLeido);
 compareResultTuple(0) <= boolean_to_std_logic(valorAComparar < valorLeido);
 
-generarNuevoIndice: process(compareResultTuple)
---variable searchRadio_temp : std_logic_vector( (ADDR_WIDTH) downto 0) ;
+
+generarNuevoIndice: process(compareResultTuple, previousIndex_delayed, radio, previousResult_delayed)
 variable searchRadio : std_logic_vector( (ADDR_WIDTH-1) downto 0) ;
 begin
-    --searchRadio_temp := (RADIO srl 1);
-    --searchRadio := searchRadio_temp( (ADDR_WIDTH-1) downto 0 );
     searchRadio := radio( (ADDR_WIDTH-1) downto 0 );  
-    if (previousResult= '1') then
-        nextIndex<= previousIndex;
+    if ( previousResult_delayed= '1' ) then
+        nextIndex_temp<= previousIndex_delayed;
     else 
         case compareResultTuple is
             when "10" =>
-                nextIndex<= previousIndex+searchRadio;
+                nextIndex_temp<= previousIndex_delayed+searchRadio;
             when "01" =>
-                nextIndex<= previousIndex-searchRadio;
+                nextIndex_temp<= previousIndex_delayed-searchRadio;
             when others =>
-                nextIndex<= (others => '-');
+                nextIndex_temp<= previousIndex_delayed;
         end case;
     end if ;
 end process generarNuevoIndice;
 
-validarSalida : process ( clk, previousIndex, compare, previousResult ) begin
+
+validarSalida : process ( clk, previousIndex, compare, dataToCompare, operationID ) begin
     if rising_edge(clk) then
-        compareFinished         <=      compare;
-        result_operationID      <=      operationID;   
+        compareFinished_temp         <=      compare;
+        result_operationID_temp      <=      operationID;   
+        dataCompared_temp            <=      dataToCompare;
     end if;
 end process validarSalida;
 
 
+lastStage : process ( clk, result_temp, nextIndex_temp, compareFinished_temp, result_operationID_temp, dataCompared_temp,  valorLeido_dbg_temp) begin
+    if rising_edge(clk) then
+        if (compareFinished_temp = '1') then
+                result                          <= result_temp;
+                nextIndex                       <= nextIndex_temp;
+                result_operationID              <= result_operationID_temp;
+                dataCompared                    <= dataCompared_temp;
+                valorLeido_dbg                  <= valorLeido_dbg_temp;
+        end if;
+        compareFinished <= compareFinished_temp;
+    end if;
+end process lastStage;
+
+
 end architecture Normal;
-
-
-
-
 

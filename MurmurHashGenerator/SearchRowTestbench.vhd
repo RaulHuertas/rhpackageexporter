@@ -29,14 +29,14 @@ architecture Behavioral of SearchRowTestbench is
     signal nextIndex        : std_logic_vector( (ADDR_WIDTH_A_USAR-1) downto 0); 
     signal compareFinished  : std_logic; --Resultado de una comparación listo
     
-    
     signal dataReadDuringIOTest  : std_logic_vector( (DATA_WIDTH_A_USAR-1) downto 0);
-
+                
+    signal dataCompared    : std_logic_vector((DATA_WIDTH_A_USAR-1) downto 0);             
+    signal valorLeido_dbg       : ieee.numeric_std.unsigned( (DATA_WIDTH_A_USAR-1) downto 0);    
+    
     constant clk_period : time := 10 ns;
     constant radioTest    : std_logic_vector( (ADDR_WIDTH_A_USAR-1) downto 0):="0100000000"; 
-                
-                
-    signal valorLeido_dbg       : ieee.numeric_std.unsigned( (DATA_WIDTH_A_USAR-1) downto 0);           
+           
 begin
    
    
@@ -58,8 +58,9 @@ begin
         porta_din           => porta_din,  
         result              => result, 
         nextIndex           => nextIndex,  
-       compareFinished      =>  compareFinished,
-       valorLeido_dbg       => valorLeido_dbg
+        compareFinished      =>  compareFinished,
+        dataCompared => dataCompared,
+        valorLeido_dbg       => valorLeido_dbg
     );  
 
    clk_process :process

@@ -92,7 +92,7 @@ begin
     finalBlock      => registro(6)(0),
     start           => registro(7)(0),
     operationID     => (others => '-'),
-    seed            => (others => '-'),
+    seed            => seed,
     --salidas
     canAccept =>   canAccept_output,
     resultReady =>   resultReady_output,
