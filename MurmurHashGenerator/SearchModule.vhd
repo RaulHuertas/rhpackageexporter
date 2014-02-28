@@ -26,7 +26,7 @@ entity SearchModule is
     Port ( 
         clk : in std_logic;-- un solo reloj para ambos puertos de la BRAM
         --Signals to start a search
-        compare : in std_logic;--El dato actual se debe comparar
+        search : in std_logic;--El dato actual se debe comparar
         dataToCompare : in std_logic_vector((DATA_WIDTH-1) downto 0);
         operationID : in std_logic_vector((DATA_WIDTH-1) downto 0);
         --Puerto de escritura de datos
@@ -84,7 +84,7 @@ generarFilasDeBusqueda: for i in 0 to (ADDR_WIDTH-1) generate
                 dataToCompare       => dataToCompare,
                 operationID         => operationID,
                 previousIndex       => firstPreviousIndex,         
-                compare             => compare,
+                compare             => search,
                 previousResult      => '0', 
                 porta_wr            => porta_wr,
                 porta_waddr         => porta_waddr,

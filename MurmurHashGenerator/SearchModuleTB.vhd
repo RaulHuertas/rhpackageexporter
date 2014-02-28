@@ -18,7 +18,7 @@ architecture Behavioral of SearchModuleTB is
 	--type arrayOfADDR_WIDTH is array ((ADDR_WIDTH_A_USAR-1) downto 0) of std_logic_vector((ADDR_WIDTH_A_USAR-1) downto 0);
 	
 	signal clk                          : std_logic;
-    signal compare                      : std_logic;
+    signal search                      : std_logic;
     signal dataToCompare                : std_logic_vector((DATA_WIDTH_A_USAR-1) downto 0);
     signal operationID                  : std_logic_vector((DATA_WIDTH_A_USAR-1) downto 0);
     signal porta_wr                     : std_logic;
@@ -44,7 +44,7 @@ begin
     )
     port map (
         clk => clk, 
-        compare => compare, 
+        search => search, 
         dataToCompare => dataToCompare,
         operationID => operationID,
         porta_wr   => porta_wr,
@@ -74,7 +74,7 @@ begin
         variable addrToWrite : std_logic_vector((ADDR_WIDTH_A_USAR-1) downto 0) := ( others => '0');        
     begin
         -- Primero grabar los datos en la memoria
-        compare <= '0';
+        search <= '0';
         dataToCompare <= (others => '0');
         operationID <= (others => '0');
         dataToWrite := x"10000000";
@@ -103,32 +103,32 @@ begin
         
         porta_wr   <= '0';
         wait for clk_period;
-        compare <= '0';
+        search <= '0';
         dataToWrite := x"10000005";
         wait for clk_period;
         wait for clk_period;
         dataToCompare     <=      dataToWrite;
-        compare <= '0';
+        search <= '0';
         wait for clk_period;
         dataToWrite := x"10000006";
         dataToCompare     <=      dataToWrite;
         wait for clk_period;
-        compare <= '0';
+        search <= '0';
         wait for clk_period;           
         readWriteCounter        :=      0;
         dataToWrite             :=      x"10000000";
         addrToWrite             :=      ( others => '0' );
         while readWriteCounter < (2**ADDR_WIDTH_A_USAR)  loop
            dataToCompare     <=      dataToWrite;
-           compare <= '1';
+           search <= '1';
            wait for clk_period;
-           compare <= '0';
+           search <= '0';
            wait for clk_period;
            dataToWrite := dataToWrite+1;
            addrToWrite := addrToWrite+1;
            readWriteCounter := readWriteCounter+1;
         end loop;
-        compare <= '0';
+        search <= '0';
 
         wait for clk_period;
         wait;
