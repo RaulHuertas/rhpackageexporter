@@ -38,6 +38,8 @@ begin
 
 
 
+
+
     portA:process (clk, porta_wr, porta_waddr, porta_raddr, porta_din, porta_rd)
     begin
         if rising_edge(clk) then

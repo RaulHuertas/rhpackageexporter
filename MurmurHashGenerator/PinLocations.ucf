@@ -1,6 +1,62 @@
-#NET "clk" TNM_NET = "clk";
-#TIMESPEC "TS_clk" = PERIOD "clk" 8 ns HIGH 50%;
 
+NET "botones[0]"                  LOC = "F3";    
+NET "botones[1]"                  LOC = "G6";   
+NET "botones[2]"                  LOC = "F5";   
+NET "botones[3]"                  LOC = "C1";   
+###
+#NET "switch[0]"                 LOC = "C18";   ## 1   on S2 DIP switch (active-high)
+#NET "switch[1]"                 LOC = "Y6";    ## 2   on S2 DIP switch (active-high)
+#NET "switch[2]"                 LOC = "W6";    ## 3   on S2 DIP switch (active-high)
+#NET "switch[3]"                 LOC = "E4";    ## 4   on S2 DIP switch (active-high)
+##
+NET "leds[0]"                    LOC = "D17";   
+NET "leds[1]"                    LOC = "AB4";   
+NET "leds[2]"                    LOC = "D21";   
+NET "leds[3]"                    LOC = "W15";   
+
+NET "gmii_int"                      LOC = "j20";  
+NET "gmii_reset"                      LOC = "j22";  
+NET "gmii_mdc"                      LOC = "r19";  
+NET "gmii_mdio"                      LOC = "v20";  
+
+NET "gmii_tx_clk"                      LOC = "AB7";
+NET "gmii_tx_en"                      LOC = "T8";
+NET "gmii_tx_data[0]"                      LOC = "U10";
+NET "gmii_tx_data[1]"                      LOC = "T10";
+NET "gmii_tx_data[2]"                      LOC = "AB8";
+NET "gmii_tx_data[3]"                      LOC = "AA8";
+NET "gmii_tx_data[4]"                      LOC = "AB9";
+NET "gmii_tx_data[5]"                      LOC = "Y9";
+NET "gmii_tx_data[6]"                      LOC = "Y12";
+NET "gmii_tx_data[7]"                      LOC = "W12";
+NET "gmii_tx_err"                      LOC = "U8";
+ 
+
+
+
+NET "gmii_rx_crs"                      LOC = "N15";
+NET "gmii_rx_col"                      LOC = "M16";    
+NET "gmii_rx_data[0]"                      LOC = "P19";  
+NET "gmii_rx_data[1]"                      LOC = "Y22";  
+NET "gmii_rx_data[2]"                      LOC = "Y21";  
+NET "gmii_rx_data[3]"                      LOC = "W22";  
+NET "gmii_rx_data[4]"                      LOC = "W20";  
+NET "gmii_rx_data[5]"                      LOC = "V22";  
+NET "gmii_rx_data[6]"                      LOC = "V21";  
+NET "gmii_rx_data[7]"                      LOC = "U22";  
+NET "gmii_rx_dataValid"                    LOC = "T22"; 
+NET "gmii_rx_err"                      LOC = "U20";   
+
+NET "gmii_rx_clk"                     LOC = "P20";   
+NET "gmii_rx_clk"                       TNM_NET = "rxclk"; 
+TIMESPEC "TS_clk" = PERIOD "rxclk" 8 ns HIGH 50%;
+
+ 
+NET "SYSCLK_N"                      LOC = "K22" | DIFF_TERM = TRUE ;   
+NET "SYSCLK_P"                      LOC = "K21" | DIFF_TERM = TRUE ;   
+
+NET "SYSCLK_P" TNM_NET = "SYSCLK_";
+TIMESPEC "TS_SYSCLK_" = PERIOD "SYSCLK_" 5 ns HIGH 50%; 
 
 #NET "inputData[7]" LOC = C1;
 #NET "inputData[6]" LOC = D1;
