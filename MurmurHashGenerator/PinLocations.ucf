@@ -58,6 +58,16 @@ NET "SYSCLK_P"                      LOC = "K21" | DIFF_TERM = TRUE ;
 NET "SYSCLK_P" TNM_NET = "SYSCLK_";
 TIMESPEC "TS_SYSCLK_" = PERIOD "SYSCLK_" 5 ns HIGH 50%; 
 
+NET "gmii_rx_clk" TNM_NET = "gmii_rx_clk_";
+TIMESPEC "TS_gmii_rx_clk_" = PERIOD "gmii_rx_clk_" 8 ns HIGH 50%;
+
+
+
+//Señales del microprocesador
+NET "cpu_reset"                         LOC = "H8";  
+NET "UART_Rx"                           LOC = "H17";  
+NET "UART_Tx"                           LOC = "B21";  
+
 #NET "inputData[7]" LOC = C1;
 #NET "inputData[6]" LOC = D1;
 #NET "inputData[5]" LOC = E1;
