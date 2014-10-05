@@ -40,7 +40,7 @@ void generateHashBenchmarkTestData(
     file.close();
     
     ostringstream hashsArray;
-    hashsArray<<"constant seed : std_logic_vector(31 downto 0) := x\"";
+    hashsArray<<"constant simulationSeed : std_logic_vector(31 downto 0) := x\"";
     hashsArray.fill('0');
     hashsArray.width(sizeof(HashType32)*2);
     hashsArray<<std::hex<<stats.exportSeed<<"\";\r\n";

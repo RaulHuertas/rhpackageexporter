@@ -34,7 +34,7 @@ int main(int argc, char** argv){
 	}
         
         generateHashBenchmarkTestData(finalResult, resultStats, opts);
-        
+        generateBinarySearchStats(finalResult, resultStats, opts);
         
 	delete hashGenerator;
 	delete exporter;

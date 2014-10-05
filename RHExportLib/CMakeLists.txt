@@ -16,6 +16,7 @@ set(
     ${PROJECT_SOURCE_DIR}/ExportOptions.cpp
     ${PROJECT_SOURCE_DIR}/Exporter.cpp
     ${PROJECT_SOURCE_DIR}/RHGenerateHashBenchmarkTestData.cpp
+    ${PROJECT_SOURCE_DIR}/RHGenerateBinarySearchStats.cpp
 )  
 
 

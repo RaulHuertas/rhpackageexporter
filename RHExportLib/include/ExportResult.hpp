@@ -89,5 +89,11 @@ void  RHEXPORTLIB_API generateHashBenchmarkTestData(
 );
 
 
+void  RHEXPORTLIB_API generateBinarySearchStats(
+                    const ResultPackage& pack, 
+                    const ExportResultStats& stats, 
+                    const ExportOptions& opts 
+);
+
 
 #endif //RH_PACKAGER_EXPORT_RESULT_HPP

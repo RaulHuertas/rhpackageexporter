@@ -15,7 +15,7 @@
 
 
 #define DEFAULT_BUFLEN 2048
-#define DEFAULT_PORT "80"
+#define DEFAULT_PORT "9797"
 
 #include <cstdlib>
 #include <cstdio>
@@ -224,6 +224,10 @@ int readPackageInfo(const char* filename, DataInfo& data){
 		tupla.position	= *((int*)(rawData+data.tupplesN*4+t*4));
 		tupla.headerSize= *((int*)(rawData+data.tupplesN*8+t*4));
 		tupla.totalSize	= *((int*)(rawData+data.tupplesN*12+t*4));
+                cout<<"tupla "<<t<<", hash: "<<tupla.hash<<endl;
+                cout<<"tupla "<<t<<", position: "<<tupla.position<<endl;
+                cout<<"tupla "<<t<<", headerSize: "<<tupla.headerSize<<endl;
+                cout<<"tupla "<<t<<", totalSize: "<<tupla.totalSize<<endl;
 	}
 
 	file.close();
