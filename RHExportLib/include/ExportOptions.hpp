@@ -20,7 +20,12 @@ public:
         std::string HashGenerationBenchMarkFile;
         std::string HashGenerationBenchMarkFile_VHDL_Code_Array;
 	int URLLengthLimit;
-	int URLLimitDetected;
+	int URLLimitDetected;        
+        
+        
+        bool cache_Usar;
+        std::string cache_access;
+        int cache_duration;
 	ExportOptions();
 };
 

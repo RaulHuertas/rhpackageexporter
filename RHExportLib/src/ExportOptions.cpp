@@ -13,6 +13,7 @@ ExportOptions::ExportOptions(){
 	URLLimitDetected = 0;
 	homeFile = "index.html";
 	error404File = "404.html";
+        cache_Usar = false;
 }
 
 int analizeLine(char* line, ExportOptions& opts ){
@@ -21,6 +22,8 @@ int analizeLine(char* line, ExportOptions& opts ){
 		return 0;
 	}
 	char scanResult1[StringReadLimit];
+        char scanResult2[StringReadLimit];
+        int scanResulti;
 	//Ahora probar el resto de las reglas
 	while(true){//no es un bucle ;)
 		if(std::sscanf(line, "Output %s", scanResult1)==1){
@@ -72,6 +75,17 @@ int analizeLine(char* line, ExportOptions& opts ){
 			opts.host.clear(); 
 			opts.host.append(scanResult1);
 			break;
+		}
+                if(std::sscanf(line, "CacheControl %s", scanResult1)==1){
+                    if( (strcmp(scanResult1,"No")==0) || (strcmp(scanResult1,"no")==0) ){
+                        opts.cache_Usar = false;
+                    }else if( (strcmp(scanResult1,"Yes")==0) || (strcmp(scanResult1,"yes")==0) ){
+                        if( std::sscanf(line, "CacheControl %s %s %d", scanResult1,scanResult2,&scanResulti)==3 ){
+                            opts.cache_Usar = true;
+                            opts.cache_access.clear();opts.cache_access.assign(scanResult2);
+                            opts.cache_duration = scanResulti;
+                        }
+                    }
 		}
 		break;
 	}

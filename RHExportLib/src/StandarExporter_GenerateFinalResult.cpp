@@ -62,7 +62,7 @@ void RHStandardExporter::generateFinalResult(
 	char dateStringBuffer[200];
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
-	strftime( dateStringBuffer, 200,  "%a %d %b %Y %H:%M:%S %Z", timeinfo );
+	strftime( dateStringBuffer, 200,  "%a, %d %b %Y %H:%M:%S %Z", timeinfo );
 	const string ResponseTypeOK = "HTTP/1.1 200 OK";
 	const string ResponseTypeERROR = "HTTP/1.1 404 Not Found";
 	const string Server = "Server: "+opts.server+"\r\n";
@@ -75,6 +75,8 @@ void RHStandardExporter::generateFinalResult(
 		if(boost::algorithm::ends_with(fileName,".html")){
 			ContentType = "Content-Type: text/html";
 		}else if(boost::algorithm::ends_with(fileName,".jpg")){
+			ContentType = "Content-Type: image/jpeg";
+		}else if(boost::algorithm::ends_with(fileName,".jpeg")){
 			ContentType = "Content-Type: image/jpeg";
 		}else if(boost::algorithm::ends_with(fileName,".png")){
 			ContentType = "Content-Type: image/png";
@@ -114,10 +116,17 @@ void RHStandardExporter::generateFinalResult(
 			Header+=(ContentType+"\r\n");
 		}
 		Header+=ContentLength+"\r\n";
-		Header+="\r\n";//FIN de cabecera
-		//cout<<"HEADER de archivo "<<fileName<<": "<<endl;
-		//cout<<Header<<endl;
-		//cout<<"FIN DE HEADER\r\n\r\n"<<endl;
+		
+                if(opts.cache_Usar){
+                    Header+="Cache-Control: "+ opts.cache_access +" max-age="+std::to_string(opts.cache_duration)+"\r\n";
+                }else{
+                    Header+="Cache-Control: no-cache, no-store\r\n";
+                }
+                
+                Header+="\r\n";//FIN de cabecera
+		cout<<"HEADER de archivo "<<fileName<<": "<<endl;
+		cout<<Header<<endl;
+		cout<<"FIN DE HEADER\r\n\r\n"<<endl;
 		result.listOfEntries[i].entireSize = Header.length()+pack.size;
 		result.listOfEntries[i].headerSize = Header.length();
 		result.listOfEntries[i].position = nextPos;
