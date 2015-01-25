@@ -14,6 +14,7 @@ set(
 include_directories("${PROJECT_INCLUDE_DIR}")
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SRCS})
 target_link_libraries(${PROJECT_NAME} RHExportLib)
+target_link_libraries(${PROJECT_NAME} pthread)
 
 
 IF(CMAKE_COMPILER_IS_GNUCXX)
